@@ -1,7 +1,6 @@
-// vite.config.mjs
 import { defineConfig } from 'vite'
+import { resolve } from 'path'
 import preact from '@preact/preset-vite'
-import { resolve } from 'path';
 
 export default defineConfig({
     plugins: [preact()],
@@ -9,16 +8,14 @@ export default defineConfig({
         rollupOptions: {
             input: {
                 popup: resolve(__dirname, 'src/popup/index.html'),
-                content: resolve(__dirname, 'src/content.js'),
-                background: resolve(__dirname, 'src/background.js'),
+                background: resolve(__dirname, 'src/background/index.js'),
+                content: resolve(__dirname, 'src/content/index.js')
             },
             output: {
                 entryFileNames: '[name].js',
+                chunkFileNames: '[name].js',
                 assetFileNames: '[name].[ext]'
             }
-        },
-        outDir: 'dist',
-        emptyOutDir: true,
-        sourcemap: true
+        }
     }
 })
