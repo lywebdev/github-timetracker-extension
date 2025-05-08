@@ -1,107 +1,86 @@
-let timerActive = false;
-let currentIssue = null;
-let intervalId = null;
+console.log("GitHub Time Tracker loaded");
 
-console.log("init GitHub Time Tracker");
+let intervalId;
 
 function injectTimerButton() {
-    console.log('injectTimerButton');
-    if (!/^\/[^/]+\/[^/]+\/issues\/\d+$/.test(location.pathname)) {
-        const oldBtn = document.getElementById("track-time-btn");
-        if (oldBtn) oldBtn.remove();
-        return;
-    }
+    const issueMatch = location.pathname.match(/^\/[^/]+\/[^/]+\/issues\/\d+$/);
+    if (!issueMatch) return;
 
-    const isIssue = /^\/[^/]+\/[^/]+\/issues\/\d+$/.test(location.pathname);
-    console.log('regexp', isIssue);
-    if (!isIssue) return;
-
-    // Уже вставили кнопку?
-    if (document.getElementById("track-time-btn")) return;
-
-    const targetContainer = document.querySelector('[data-testid="issue-metadata-fixed"] .cySYaL');
-    if (!targetContainer) return;
+    const container = document.querySelector('[data-testid="issue-metadata-fixed"]');
+    if (!container || document.getElementById("track-time-btn")) return;
 
     const btn = document.createElement("button");
     btn.id = "track-time-btn";
+    btn.style = "margin-top: 10px;";
+    btn.className = "btn btn-sm";
     btn.textContent = "Start Timer";
-    btn.style = `
-        margin-top: 8px;
-        padding: 6px 12px;
-        font-size: 14px;
-        background-color: #2da44e;
-        color: white;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-    `;
-
-    btn.addEventListener("click", () => {
-        if (!timerActive) {
-            startTimer(location.pathname);
-        } else {
-            stopTimer(location.pathname);
-        }
-    });
+    container.append(btn);
 
     chrome.storage.local.get(["activeIssue", "startTime"], (data) => {
         if (data.activeIssue === location.pathname && data.startTime) {
-            timerActive = true;
-            currentIssue = data.activeIssue;
-            btn.textContent = "Stop Timer";
+            btn.textContent = timeStringSince(data.startTime) + " ⏸ Stop";
+            intervalId = setInterval(() => {
+                btn.textContent = timeStringSince(data.startTime) + " ⏸ Stop";
+            }, 1000);
         }
     });
 
-    targetContainer.appendChild(btn);
+    btn.addEventListener("click", () => {
+        chrome.storage.local.get(["activeIssue", "startTime"], (data) => {
+            if (data.activeIssue === location.pathname && data.startTime) {
+                stopTimer(location.pathname, btn);
+            } else {
+                startTimer(location.pathname, btn);
+            }
+        });
+    });
 }
 
-function startTimer(issueUrl) {
-    timerActive = true;
-    currentIssue = issueUrl;
-
-    const startTime = new Date().toISOString();
-    chrome.storage.local.set({ activeIssue: issueUrl, startTime });
-
-    updateButtonText(); // сразу показать 0:00
-    intervalId = setInterval(updateButtonText, 1000);
+function startTimer(issueUrl, btn) {
+    chrome.storage.local.set({ activeIssue: issueUrl, startTime: new Date().toISOString() });
+    btn.textContent = "0m ⏸ Stop";
+    intervalId = setInterval(() => {
+        chrome.storage.local.get("startTime", (data) => {
+            btn.textContent = timeStringSince(data.startTime) + " ⏸ Stop";
+        });
+    }, 1000);
 }
 
 function stopTimer(issueUrl) {
     chrome.storage.local.get(["startTime", "githubToken", "trackedTimes"], async (data) => {
         const timeSpent = (Date.now() - new Date(data.startTime).getTime()) / 1000;
-        const minutes = Math.round(timeSpent / 60);
 
         const token = data.githubToken;
+        const { owner, repo, issueNumber } = parseIssueUrl(issueUrl);
+
+        // Название проекта = repo, название задачи пытаемся достать из DOM
+        const issueTitle =
+            document.querySelector("span.js-issue-title")?.textContent?.trim() ||
+            document.querySelector("[data-testid='issue-title']")?.textContent?.trim() ||
+            "Untitled";
+
+        const title = `${repo} | ${issueTitle} | #${issueNumber}`;
+
         if (token) {
             try {
-                const { owner, repo, issueNumber } = parseIssueUrl(issueUrl);
-                await postComment(owner, repo, issueNumber, minutes, token);
+                await postComment(owner, repo, issueNumber, timeSpent, token);
             } catch (err) {
                 console.error("Ошибка отправки комментария:", err);
             }
         }
 
-        // Сохраняем в историю
+        // Сохраняем в локальную статистику
         const tracked = data.trackedTimes || [];
-        const title = document.querySelector('[data-testid="issue-title"]')?.textContent?.trim() || "Untitled";
         tracked.push({
             issueUrl,
             title,
             seconds: timeSpent,
             date: new Date().toISOString().slice(0, 10)
         });
-
-        // Ограничим размер истории
-        if (tracked.length > 500) tracked.shift();
-
         chrome.storage.local.set({ trackedTimes: tracked });
 
         chrome.storage.local.remove(["activeIssue", "startTime"]);
         document.getElementById("track-time-btn").textContent = "Start Timer";
-
-        clearInterval(intervalId);
-        intervalId = null;
-
         timerActive = false;
         currentIssue = null;
     });
@@ -113,33 +92,28 @@ function parseIssueUrl(url) {
     return {
         owner: match[1],
         repo: match[2],
-        issueNumber: match[3],
+        issueNumber: match[3]
     };
 }
 
-function updateButtonText() {
-    chrome.storage.local.get(["startTime"], (data) => {
-        const start = new Date(data.startTime);
-        const diff = Math.floor((Date.now() - start.getTime()) / 1000);
-        const mins = Math.floor(diff / 60);
-        const secs = diff % 60;
+async function postComment(owner, repo, issueNumber, seconds, token) {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = Math.floor(seconds % 60);
 
-        const btn = document.getElementById("track-time-btn");
-        if (btn) btn.textContent = `Stop Timer (${mins}:${secs.toString().padStart(2, '0')})`;
-    });
-}
+    const timeString =
+        minutes > 0
+            ? `${minutes} min${remainingSeconds > 0 ? ` ${remainingSeconds} sec` : ""}`
+            : `${remainingSeconds} sec`;
 
-
-async function postComment(owner, repo, issueNumber, minutes, token) {
     const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/issues/${issueNumber}/comments`, {
         method: "POST",
         headers: {
             "Authorization": `token ${token}`,
-            "Accept": "application/vnd.github+json",
+            "Accept": "application/vnd.github+json"
         },
         body: JSON.stringify({
-            body: `⏱️ Tracked time: **${minutes} minute(s)** via GitHub Time Tracker extension.`,
-        }),
+            body: `⏱️ Tracked time: **${timeString}** via GitHub Time Tracker extension.`
+        })
     });
 
     if (!response.ok) {
@@ -150,23 +124,12 @@ async function postComment(owner, repo, issueNumber, minutes, token) {
     console.log("Комментарий успешно отправлен.");
 }
 
-// Проверяем загрузку DOM
-if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", injectTimerButton);
-} else {
-    injectTimerButton();
+function timeStringSince(startTime) {
+    const seconds = Math.floor((Date.now() - new Date(startTime).getTime()) / 1000);
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}m ${s < 10 ? "0" : ""}${s}s`;
 }
 
-// Следим за PJAX-навигацией
-let lastPath = location.pathname;
-
-const observer = new MutationObserver(() => {
-    const currentPath = location.pathname;
-    if (currentPath !== lastPath) {
-        console.log("Path changed:", currentPath);
-        lastPath = currentPath;
-        injectTimerButton();
-    }
-});
+const observer = new MutationObserver(() => injectTimerButton());
 observer.observe(document.body, { childList: true, subtree: true });
-
