@@ -1,0 +1,18 @@
+{
+  "name": "github-time-tracker",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "start": "nodemon --watch src --ext js,jsx,html,css,json --exec \"npm run build\""
+  },
+  "dependencies": {
+    "preact": "^10.19.3"
+  },
+  "devDependencies": {
+    "@preact/preset-vite": "^2.4.0",
+    "nodemon": "^3.1.10",
+    "vite": "^5.0.0"
+  }
+}
