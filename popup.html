@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: sans-serif; padding: 10px; width: 300px; }
+        .issue { margin-bottom: 10px; }
+        .title { font-weight: bold; }
+        .time { color: gray; }
+    </style>
+</head>
+<body>
+<h3>GitHub Time Tracker</h3>
+
+<label>
+    GitHub Token:
+    <input type="password" id="token" style="width: 100%;" placeholder="ghp_...">
+</label>
+<button id="save-token">Save Token</button>
+
+<h4>Tracked Time</h4>
+<div id="stats"></div>
+<button id="clear">Clear Stats</button>
+
+<script src="popup.js"></script>
+</body>
+</html>
