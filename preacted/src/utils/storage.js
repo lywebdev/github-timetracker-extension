@@ -21,9 +21,9 @@ export class StorageService {
         return new Promise((resolve) => {
             chrome.storage.local.get(keys, (data) => {
                 const result = {};
-                keys.forEach((key) => {
+                for (const key of keys) {
                     result[key] = data[key] || null;
-                });
+                }
                 resolve(result);
             });
         });

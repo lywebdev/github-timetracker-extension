@@ -14,7 +14,6 @@ async function handleTimerStop(reason) {
         const timeSpent = (Date.now() - new Date(startTime).getTime()) / 1000;
         console.log(`Stopped due to ${reason}. Tracked ${timeSpent} seconds on ${activeIssue}`);
 
-        // Парсим URL задачи
         let issueInfo;
         try {
             issueInfo = GitHubService.parseIssueUrl(activeIssue);
@@ -26,7 +25,6 @@ async function handleTimerStop(reason) {
         const { owner, repo, issueNumber } = issueInfo;
         const title = `(${owner}) ${repo} | Issue #${issueNumber}`;
 
-        // Сохраняем в статистику
         const tracked = trackedTimes || [];
         tracked.push({
             issueUrl: activeIssue,
@@ -36,7 +34,6 @@ async function handleTimerStop(reason) {
         });
         await StorageService.set(STORAGE_KEYS.TRACKED_TIMES, tracked);
 
-        // Публикуем комментарий, если есть токен
         const token = await GitHubStorageService.getGitHubToken();
         if (token) {
             try {
@@ -46,7 +43,6 @@ async function handleTimerStop(reason) {
             }
         }
 
-        // Очищаем данные таймера
         await StorageService.removeMultiple([
             STORAGE_KEYS.ACTIVE_ISSUE,
             STORAGE_KEYS.START_TIME,

@@ -5,28 +5,49 @@ import { GitHubStorageService } from '../utils/github-storage';
 import { STORAGE_KEYS, TIME_UPDATE_INTERVAL } from '../utils/constants';
 
 export class TimerService {
+    static async getTotalTimeForIssue(issueUrl) {
+        const trackedTimes = await StorageService.get(STORAGE_KEYS.TRACKED_TIMES) || [];
+        return trackedTimes
+            .filter((entry) => entry.issueUrl === issueUrl)
+            .reduce((total, entry) => total + (entry.seconds || 0), 0);
+    }
+
     static async startTimer(issueUrl, btn) {
         await StorageService.set(STORAGE_KEYS.ACTIVE_ISSUE, issueUrl);
         await StorageService.set(STORAGE_KEYS.START_TIME, new Date().toISOString());
 
-        btn.textContent = '0m ⏸ Stop';
+        const totalTime = await this.getTotalTimeForIssue(issueUrl);
+        btn.textContent = `${TimeService.formatTime(0, totalTime)} ⏸ Stop`;
         const intervalId = setInterval(async () => {
             const startTime = await StorageService.get(STORAGE_KEYS.START_TIME);
-            btn.textContent = `${TimeService.timeStringSince(startTime)} ⏸ Stop`;
+            if (!startTime || isNaN(new Date(startTime).getTime())) {
+                clearInterval(intervalId);
+                btn.textContent = `${TimeService.formatTime(0, totalTime)} Start Timer`;
+                return;
+            }
+            btn.textContent = `${TimeService.timeStringSince(startTime, totalTime)} ⏸ Stop`;
         }, TIME_UPDATE_INTERVAL);
 
         btn.dataset.intervalId = intervalId;
     }
 
     static async stopTimer(issueUrl, btn) {
-        alert('stop timer');
         const [startTime, token, trackedTimes] = await Promise.all([
             StorageService.get(STORAGE_KEYS.START_TIME),
             GitHubStorageService.getGitHubToken(),
             StorageService.get(STORAGE_KEYS.TRACKED_TIMES),
         ]);
 
-        console.log('Token in stopTimer:', token); // Для диагностики
+        if (!startTime || isNaN(new Date(startTime).getTime())) {
+            console.error('Invalid startTime:', startTime);
+            clearInterval(btn.dataset.intervalId);
+            btn.textContent = 'Start Timer';
+            await StorageService.removeMultiple([
+                STORAGE_KEYS.ACTIVE_ISSUE,
+                STORAGE_KEYS.START_TIME,
+            ]);
+            return;
+        }
 
         const timeSpent = (Date.now() - new Date(startTime).getTime()) / 1000;
         let issueInfo;
@@ -34,6 +55,12 @@ export class TimerService {
             issueInfo = GitHubService.parseIssueUrl(issueUrl);
         } catch (error) {
             console.error('Failed to parse issue URL:', error);
+            clearInterval(btn.dataset.intervalId);
+            btn.textContent = 'Start Timer';
+            await StorageService.removeMultiple([
+                STORAGE_KEYS.ACTIVE_ISSUE,
+                STORAGE_KEYS.START_TIME,
+            ]);
             return;
         }
 
@@ -44,12 +71,9 @@ export class TimerService {
         if (token) {
             try {
                 await GitHubService.postComment({ owner, repo, issueNumber, seconds: timeSpent });
-                console.log('Comment posted successfully');
             } catch (error) {
                 console.error('Failed to post comment:', error);
             }
-        } else {
-            console.warn('No GitHub token found, skipping comment posting');
         }
 
         const tracked = trackedTimes || [];
@@ -61,13 +85,14 @@ export class TimerService {
         });
 
         await StorageService.set(STORAGE_KEYS.TRACKED_TIMES, tracked);
-        await Promise.all([
-            StorageService.remove(STORAGE_KEYS.ACTIVE_ISSUE),
-            StorageService.remove(STORAGE_KEYS.START_TIME),
+        await StorageService.removeMultiple([
+            STORAGE_KEYS.ACTIVE_ISSUE,
+            STORAGE_KEYS.START_TIME,
         ]);
 
+        const totalTime = await this.getTotalTimeForIssue(issueUrl);
         clearInterval(btn.dataset.intervalId);
-        btn.textContent = 'Start Timer';
+        btn.textContent = `${TimeService.formatTime(0, totalTime)} Start Timer`;
     }
 
     static getIssueTitle() {

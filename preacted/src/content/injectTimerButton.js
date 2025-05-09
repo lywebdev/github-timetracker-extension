@@ -1,47 +1,43 @@
 import { TimerService } from './timer';
 import { TimeService } from '../utils/time';
+import { StorageService } from '../utils/storage';
 import { STORAGE_KEYS, TIME_UPDATE_INTERVAL } from '../utils/constants';
 
 export async function injectTimerButton() {
-    console.log('заинжектено');
-    // Проверяем, что текущая страница — это GitHub Issue
     if (!isIssuePage()) {
         return;
     }
 
-    // Находим контейнер для кнопки
     const container = document.querySelector('[data-testid="issue-metadata-fixed"]');
     if (!container || document.getElementById('track-time-btn')) {
         return;
     }
 
-    // Создаём кнопку
     const btn = createTimerButton();
     container.append(btn);
 
-    // Проверяем, активен ли таймер для текущей страницы
     const { activeIssue, startTime } = await getStorageData();
-    if (activeIssue === location.pathname && startTime) {
-        updateButtonText(btn, startTime);
-        startButtonUpdateInterval(btn, startTime);
+    const totalTime = await TimerService.getTotalTimeForIssue(location.pathname);
+    if (activeIssue === location.pathname && startTime && !isNaN(new Date(startTime).getTime())) {
+        updateButtonText(btn, startTime, totalTime);
+        startButtonUpdateInterval(btn, startTime, totalTime);
+    } else {
+        btn.textContent = `${TimeService.formatTime(0, totalTime)} Start Timer`;
     }
 
-    // Добавляем обработчик клика
     btn.addEventListener('click', async () => {
-        console.log('клик по кнопке');
         const { activeIssue, startTime } = await getStorageData();
-        if (activeIssue === location.pathname && startTime) {
+        if (activeIssue === location.pathname && startTime && !isNaN(new Date(startTime).getTime())) {
             await TimerService.stopTimer(location.pathname, btn);
         } else {
             await TimerService.startTimer(location.pathname, btn);
         }
     });
 
-    // Очищаем интервал при выходе со страницы
     window.addEventListener('unload', () => {
         if (btn.dataset.intervalId) {
             clearInterval(btn.dataset.intervalId);
-            delete btn.dataset.intervalId; // Удаляем для предотвращения повторных попыток очистки
+            delete btn.dataset.intervalId;
         }
     });
 }
@@ -70,13 +66,13 @@ async function getStorageData() {
     });
 }
 
-function updateButtonText(btn, startTime) {
-    btn.textContent = `${TimeService.timeStringSince(startTime)} ⏸ Stop`;
+function updateButtonText(btn, startTime, totalTime) {
+    btn.textContent = `${TimeService.timeStringSince(startTime, totalTime)} ⏸ Stop`;
 }
 
-function startButtonUpdateInterval(btn, startTime) {
+function startButtonUpdateInterval(btn, startTime, totalTime) {
     const intervalId = setInterval(() => {
-        updateButtonText(btn, startTime);
+        updateButtonText(btn, startTime, totalTime);
     }, TIME_UPDATE_INTERVAL);
     btn.dataset.intervalId = intervalId;
 }
