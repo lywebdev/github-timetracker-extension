@@ -1,4 +1,4 @@
-import { injectTimerButton } from './injectButton';
+import { injectTimerButton } from './injectTimerButton.js';
 
 console.log('content popup.jsx');
 

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'preact/hooks'
-import { formatTime } from '../../../utils/time.js';
 import {TrackedList} from "./TrackedList.jsx";
+import {TimeService} from "../../../utils/time.js";
 
 export function HistoryView() {
     const [entries, setEntries] = useState([])
@@ -10,7 +10,7 @@ export function HistoryView() {
             const tracked = (data.trackedTimes || []).slice(-10).reverse()
             const formatted = tracked.map(e => ({
                 ...e,
-                displayTime: formatTime(e.seconds),
+                displayTime: TimeService.formatTime(e.seconds),
             }))
             setEntries(formatted)
         })

@@ -1,39 +1,37 @@
-// Получение токена
-export async function getGitHubToken() {
-    return new Promise((resolve) => {
-        chrome.storage.local.get("githubToken", (data) => {
-            resolve(data.githubToken || null);
+export class StorageService {
+    static async get(key) {
+        return new Promise((resolve) => {
+            chrome.storage.local.get(key, (data) => resolve(data[key] || null));
         });
-    });
-}
+    }
 
-// Сохранение токена
-export async function setGitHubToken(token) {
-    return new Promise((resolve) => {
-        chrome.storage.local.set({ githubToken: token }, () => {
-            resolve();
+    static async set(key, value) {
+        return new Promise((resolve) => {
+            chrome.storage.local.set({ [key]: value }, resolve);
         });
-    });
-}
+    }
 
-// Удаление токена
-export async function removeGitHubToken() {
-    return new Promise((resolve) => {
-        chrome.storage.local.remove("githubToken", () => {
-            resolve();
+    static async remove(key) {
+        return new Promise((resolve) => {
+            chrome.storage.local.remove(key, resolve);
         });
-    });
-}
+    }
 
-// Валидация токена через GitHub API
-export async function validateGitHubToken(token) {
-    try {
-        const response = await fetch('https://api.github.com/user', {
-            headers: { Authorization: `token ${token}` }
+    static async getMultiple(keys) {
+        return new Promise((resolve) => {
+            chrome.storage.local.get(keys, (data) => {
+                const result = {};
+                keys.forEach((key) => {
+                    result[key] = data[key] || null;
+                });
+                resolve(result);
+            });
         });
-        return response.ok;
-    } catch (error) {
-        console.error('Token validation failed:', error);
-        return false;
+    }
+
+    static async removeMultiple(keys) {
+        return new Promise((resolve) => {
+            chrome.storage.local.remove(keys, resolve);
+        });
     }
 }

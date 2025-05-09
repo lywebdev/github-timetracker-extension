@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'preact/hooks'
-import { formatTime } from '../../../utils/time.js';
+import {TimeService} from '../../../utils/time.js';
 import {TrackedList} from "./TrackedList.jsx";
 
 export function SummaryView() {
@@ -18,7 +18,7 @@ export function SummaryView() {
 
             const formatted = Object.values(grouped).map(e => ({
                 ...e,
-                displayTime: formatTime(e.seconds),
+                displayTime: TimeService.formatTime(e.seconds),
             }))
 
             setEntries(formatted)
