@@ -1,26 +1,16 @@
+import './Tabs.css'
+
 export function Tabs({ activeTab, setActiveTab }) {
-    const tabStyle = {
-        cursor: 'pointer',
-        marginRight: '10px',
-        display: 'inline-block'
-    }
-
-    const activeStyle = {
-        ...tabStyle,
-        fontWeight: 'bold',
-        textDecoration: 'underline'
-    }
-
     return (
-        <div style={{ margin: '10px 0' }}>
+        <div className="tabs-wrapper">
       <span
-          style={activeTab === 'summary' ? activeStyle : tabStyle}
+          className={`tab ${activeTab === 'summary' ? 'active' : ''}`}
           onClick={() => setActiveTab('summary')}
       >
         Summary
       </span>
             <span
-                style={activeTab === 'history' ? activeStyle : tabStyle}
+                className={`tab ${activeTab === 'history' ? 'active' : ''}`}
                 onClick={() => setActiveTab('history')}
             >
         History

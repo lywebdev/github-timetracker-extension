@@ -7,12 +7,10 @@
     "dev": "vite",
     "build": "vite build",
     "start": "nodemon --watch src --ext js,jsx,html,css,json --exec \"npm run build\"",
-
     "build:popup": "vite build --config vite.config.popup.js",
     "build:background": "vite build --config vite.config.background.js",
     "build:content": "vite build --config vite.config.content.js",
     "abuild": "npm run build:popup && npm run build:background && npm run build:content",
-
     "watch": "nodemon --watch src --ext js,jsx,html,css,json --exec \"npm run abuild\""
   },
   "dependencies": {
@@ -22,6 +20,7 @@
   "devDependencies": {
     "nodemon": "^3.1.10",
     "vite": "^6.3.5",
+    "vite-plugin-css-injected-by-js": "^3.5.2",
     "vite-plugin-static-copy": "^2.3.1"
   }
 }

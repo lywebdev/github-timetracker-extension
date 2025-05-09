@@ -2,6 +2,7 @@ import { useState, useEffect } from 'preact/hooks'
 import { Tabs } from './Tabs'
 import { SummaryView } from './SummaryView'
 import { HistoryView } from './HistoryView'
+import {Button} from "../components/Button.jsx";
 
 export function App() {
     const [activeTab, setActiveTab] = useState('summary')
@@ -27,9 +28,7 @@ export function App() {
                 placeholder="GitHub Token"
                 style={{ width: '100%', marginBottom: '8px' }}
             />
-            <button onClick={saveToken} style={{ width: '100%' }}>
-                Save Token
-            </button>
+            <Button onClick={saveToken}>Save Token</Button>
 
             <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />
 

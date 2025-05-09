@@ -2,6 +2,7 @@ import { defineConfig } from 'vite';
 import { resolve } from 'path';
 import preact from "@preact/preset-vite";
 import {viteStaticCopy} from "vite-plugin-static-copy";
+import cssInjectedByJsPlugin from "vite-plugin-css-injected-by-js";
 
 export default defineConfig({
     plugins: [
@@ -13,7 +14,8 @@ export default defineConfig({
                     dest: '.'
                 }
             ]
-        })
+        }),
+        cssInjectedByJsPlugin(),
     ],
     build: {
         rollupOptions: {
@@ -25,6 +27,6 @@ export default defineConfig({
         },
         outDir: 'dist',
         emptyOutDir: false,
-        minify: false
+        // minify: false
     }
 });
