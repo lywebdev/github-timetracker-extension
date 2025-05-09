@@ -1,5 +1,5 @@
-import { parseIssueUrl, postComment } from '../utils/github'
 import { timeStringSince } from '../utils/time'
+import {parseIssueUrl, postComment} from "../utils/github.js";
 
 export function startTimer(issueUrl, btn) {
     chrome.storage.local.set({ activeIssue: issueUrl, startTime: new Date().toISOString() })

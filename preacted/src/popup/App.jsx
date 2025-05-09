@@ -4,49 +4,85 @@ import { Button } from "../components/Button/Button.jsx"
 import { Input } from "../components/Input/Input.jsx"
 import { SummaryView } from "./Views/TrackedList/SummaryView.jsx"
 import { HistoryView } from "./Views/TrackedList/HistoryView.jsx"
+import {getGitHubToken, removeGitHubToken, setGitHubToken, validateGitHubToken} from "../utils/storage.js";
 
 export function App() {
-    const [token, setToken] = useState('')
-    const [isEditingToken, setIsEditingToken] = useState(false)
-    const [isTokenSaved, setIsTokenSaved] = useState(false)
+    const NO_TOKEN_TEXT = 'no token';
+
+    const [token, setToken] = useState('');
+    const [isEditing, setIsEditing] = useState(false);
+    const [initialToken, setInitialToken] = useState('');
+    const [maskedToken, setMaskedToken] = useState(NO_TOKEN_TEXT);
+    const [tokenStatus, setTokenStatus] = useState(null);
 
     useEffect(() => {
-        chrome.storage.local.get("githubToken", (data) => {
-            if (data.githubToken) {
-                setToken(data.githubToken)
-                setIsTokenSaved(true)
+        const loadToken = async () => {
+            const savedToken = await getGitHubToken();
+            if (savedToken) {
+                setToken(savedToken);
+                setMaskedToken(savedToken.slice(0, 4) + '••••••••');
             }
-        })
-    }, [])
+        };
+        loadToken();
+    }, []);
 
-    const saveToken = () => {
-        chrome.storage.local.set({ githubToken: token }, () => {
-            setIsEditingToken(false)
-            setIsTokenSaved(true)
-        })
+
+    const handleSaveToken = async () => {
+        const isValid = await validateGitHubToken(token);
+        if (isValid) {
+            await setGitHubToken(token);
+            setMaskedToken(token.slice(0, 4) + '••••••••');
+            setIsEditing(false);
+            setTokenStatus(null);
+        } else {
+            setTokenStatus({
+                type: 'error',
+                message: 'Invalid token'
+            });
+        }
+    };
+
+    const handleEditClick = () => {
+        setIsEditing(true)
     }
+
+    const handleCancelClick = () => {
+        setIsEditing(false);
+        setToken(initialToken);
+        setTokenStatus(null);
+    }
+
+    const removeTokenHandler = async () => {
+        await removeGitHubToken();
+        setMaskedToken(NO_TOKEN_TEXT);
+        setToken('');
+        setInitialToken('');
+    }
+
 
     return (
         <div style={{ fontFamily: 'sans-serif', padding: '10px', width: '300px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h2 style={{ margin: 0 }}>⏱️ GitHub Time Tracker</h2>
-                {isTokenSaved && (
-                    <button
-                        onClick={() => setIsEditingToken(!isEditingToken)}
-                        style={{
-                            background: 'none',
-                            border: 'none',
-                            cursor: 'pointer',
-                            fontSize: '16px'
-                        }}
-                        title="Edit token"
-                    >
-                        ✏️
-                    </button>
-                )}
-            </div>
+            <h2>⏱️ GitHub Time Tracker</h2>
 
-            {(!isTokenSaved || isEditingToken) && (
+            {!isEditing ? (
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                    <span style={{ fontSize: '0.9em', color: '#555' }}>
+                        {token ? '✅' : '❌'} Token: {maskedToken}
+                    </span>
+                    <div>
+                        {
+                            token && <span style={{marginRight: '10px', cursor: 'pointer'}}
+                                onClick={removeTokenHandler}>Remove</span>
+                        }
+                        <span
+                            onClick={handleEditClick}
+                            style={{color: '#007bff', cursor: 'pointer', textDecoration: 'underline'}}
+                        >
+                        Change
+                    </span>
+                    </div>
+                </div>
+            ) : (
                 <>
                     <Input
                         type="password"
@@ -54,7 +90,16 @@ export function App() {
                         onInput={(e) => setToken(e.target.value)}
                         placeholder="GitHub Token"
                     />
-                    <Button onClick={saveToken}>Save Token</Button>
+                    {
+                        tokenStatus && tokenStatus.type === 'error'
+                        && <span style={{color: 'red', marginBottom: '10px', display: 'inline-block'}}>
+                            {tokenStatus.message}
+                        </span>
+                    }
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                        <Button onClick={handleSaveToken}>Save Token</Button>
+                        <Button variant="secondary" onClick={handleCancelClick}>Cancel</Button>
+                    </div>
                 </>
             )}
 
