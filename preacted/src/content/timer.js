@@ -19,6 +19,7 @@ export class TimerService {
     }
 
     static async stopTimer(issueUrl, btn) {
+        alert('stop timer');
         const [startTime, token, trackedTimes] = await Promise.all([
             StorageService.get(STORAGE_KEYS.START_TIME),
             GitHubStorageService.getGitHubToken(),
@@ -38,7 +39,7 @@ export class TimerService {
 
         const { owner, repo, issueNumber } = issueInfo;
         const issueTitle = this.getIssueTitle() || 'Untitled';
-        const title = `${repo} | ${issueTitle} | #${issueNumber}`;
+        const title = `(${owner}) ${repo} | ${issueTitle} | #${issueNumber}`;
 
         if (token) {
             try {

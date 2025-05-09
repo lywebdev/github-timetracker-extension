@@ -24,9 +24,7 @@ async function handleTimerStop(reason) {
         }
 
         const { owner, repo, issueNumber } = issueInfo;
-
-        // Формируем заголовок (без DOM, так как это background script)
-        const title = `${repo} | Issue #${issueNumber}`;
+        const title = `(${owner}) ${repo} | Issue #${issueNumber}`;
 
         // Сохраняем в статистику
         const tracked = trackedTimes || [];
