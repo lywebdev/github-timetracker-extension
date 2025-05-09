@@ -1,38 +1,69 @@
 import { useState, useEffect } from 'preact/hooks'
 import { Tabs } from './Tabs'
-import { SummaryView } from './SummaryView'
-import { HistoryView } from './HistoryView'
-import {Button} from "../components/Button.jsx";
+import { Button } from "../components/Button/Button.jsx"
+import { Input } from "../components/Input/Input.jsx"
+import { SummaryView } from "./Views/TrackedList/SummaryView.jsx"
+import { HistoryView } from "./Views/TrackedList/HistoryView.jsx"
 
 export function App() {
-    const [activeTab, setActiveTab] = useState('summary')
     const [token, setToken] = useState('')
+    const [isEditingToken, setIsEditingToken] = useState(false)
+    const [isTokenSaved, setIsTokenSaved] = useState(false)
 
     useEffect(() => {
         chrome.storage.local.get("githubToken", (data) => {
-            if (data.githubToken) setToken(data.githubToken)
+            if (data.githubToken) {
+                setToken(data.githubToken)
+                setIsTokenSaved(true)
+            }
         })
     }, [])
 
     const saveToken = () => {
-        chrome.storage.local.set({ githubToken: token })
+        chrome.storage.local.set({ githubToken: token }, () => {
+            setIsEditingToken(false)
+            setIsTokenSaved(true)
+        })
     }
 
     return (
         <div style={{ fontFamily: 'sans-serif', padding: '10px', width: '300px' }}>
-            <h2>⏱️ GitHub Time Tracker</h2>
-            <input
-                type="password"
-                value={token}
-                onInput={(e) => setToken(e.target.value)}
-                placeholder="GitHub Token"
-                style={{ width: '100%', marginBottom: '8px' }}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <h2 style={{ margin: 0 }}>⏱️ GitHub Time Tracker</h2>
+                {isTokenSaved && (
+                    <button
+                        onClick={() => setIsEditingToken(!isEditingToken)}
+                        style={{
+                            background: 'none',
+                            border: 'none',
+                            cursor: 'pointer',
+                            fontSize: '16px'
+                        }}
+                        title="Edit token"
+                    >
+                        ✏️
+                    </button>
+                )}
+            </div>
+
+            {(!isTokenSaved || isEditingToken) && (
+                <>
+                    <Input
+                        type="password"
+                        value={token}
+                        onInput={(e) => setToken(e.target.value)}
+                        placeholder="GitHub Token"
+                    />
+                    <Button onClick={saveToken}>Save Token</Button>
+                </>
+            )}
+
+            <Tabs
+                tabs={[
+                    { id: 'summary', label: 'Summary', content: <SummaryView /> },
+                    { id: 'history', label: 'History', content: <HistoryView /> }
+                ]}
             />
-            <Button onClick={saveToken}>Save Token</Button>
-
-            <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />
-
-            {activeTab === 'summary' ? <SummaryView /> : <HistoryView />}
         </div>
     )
 }

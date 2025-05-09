@@ -1,0 +1,27 @@
+.tracked-list {
+    padding: 4px 0;
+}
+
+.tracked-entry {
+    margin-bottom: 10px;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 5px;
+}
+
+.tracked-title {
+    font-weight: bold;
+}
+
+.tracked-meta {
+    font-size: 0.9em;
+    color: #555;
+}
+
+.tracked-meta a {
+    color: #0969da;
+    text-decoration: none;
+}
+
+.tracked-meta a:hover {
+    text-decoration: underline;
+}
