@@ -1,7 +1,7 @@
-import { StorageService } from '../utils/storage';
-import { GitHubService } from '../utils/github';
-import { GitHubStorageService } from '../utils/github-storage';
-import { STORAGE_KEYS } from '../utils/constants';
+import { StorageService } from '../utils/storage.js';
+import { GitHubService } from '../utils/github.js';
+import { GitHubStorageService } from '../utils/github-storage.js';
+import { STORAGE_KEYS } from '../utils/constants.js';
 
 async function handleTimerStop(reason) {
     const { activeIssue, startTime, trackedTimes } = await StorageService.getMultiple([

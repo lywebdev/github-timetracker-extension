@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'preact/hooks';
-import { StorageService } from '../utils/storage';
+import { StorageService } from '../utils/storage.js';
 
 export function useStorageListener(key, initialValue = null) {
     const [data, setData] = useState(initialValue);

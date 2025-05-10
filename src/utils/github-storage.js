@@ -1,5 +1,5 @@
-import { STORAGE_KEYS } from './constants';
-import { StorageService } from './storage';
+import { STORAGE_KEYS } from './constants.js';
+import { StorageService } from './storage.js';
 
 export class GitHubStorageService {
     static async getGitHubToken() {

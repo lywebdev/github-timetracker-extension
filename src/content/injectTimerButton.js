@@ -1,7 +1,7 @@
 import { TimerService } from '../utils/timer.js';
-import { TimeService } from '../utils/time';
+import { TimeService } from '../utils/time.js';
 import { addStorageListener } from '../utils/storage-listener.js';
-import { STORAGE_KEYS, TIME_UPDATE_INTERVAL } from '../utils/constants';
+import { STORAGE_KEYS, TIME_UPDATE_INTERVAL } from '../utils/constants.js';
 
 console.log('injectTimerButton module loaded, timestamp:', Date.now());
 

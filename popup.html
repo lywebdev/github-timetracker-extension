@@ -2,26 +2,11 @@
 <html>
 <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>GitHub Time Tracker</title>
-    <style>
-        body { font-family: sans-serif; padding: 10px; width: 300px; }
-        .issue { margin-bottom: 10px; border-bottom: 1px solid #ccc; padding-bottom: 5px; }
-        .title { font-weight: bold; }
-        .time { font-size: 0.9em; color: #555; }
-        button { margin-top: 10px; }
-        .tab { cursor: pointer; margin-right: 10px; display: inline-block; }
-        .active { font-weight: bold; text-decoration: underline; }
-    </style>
 </head>
 <body>
-<h2>⏱️ GitHub Time Tracker</h2>
-<input type="password" id="token" placeholder="GitHub Token" />
-<button id="saveToken">Save Token</button>
-<div>
-    <div class="tab active" id="tab-summary">Summary</div>
-    <div class="tab" id="tab-history">History</div>
-</div>
-<div id="stats"></div>
-<script src="popup.js"></script>
+<div id="root"></div>
+<script type="module" src="popup.js"></script>
 </body>
 </html>

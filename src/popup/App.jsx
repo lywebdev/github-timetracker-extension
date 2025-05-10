@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'preact/hooks';
-import { Tabs } from './Tabs';
+import { Tabs } from './Tabs.jsx';
 import { Button } from '../components/Button/Button.jsx';
 import { Input } from '../components/Input/Input.jsx';
 import { Modal } from '../components/Modal/Modal.jsx';
 import { SummaryView } from './Views/TrackedList/SummaryView.jsx';
 import { HistoryView } from './Views/TrackedList/HistoryView.jsx';
-import { GitHubStorageService } from '../utils/github-storage';
-import { StorageService } from '../utils/storage';
-import { STORAGE_KEYS } from '../utils/constants';
+import { GitHubStorageService } from '../utils/github-storage.js';
+import { StorageService } from '../utils/storage.js';
+import { STORAGE_KEYS } from '../utils/constants.js';
 import './App.css';
 
 export function App() {

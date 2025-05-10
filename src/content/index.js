@@ -1,6 +1,6 @@
 import { injectTimerButton, resetInjectedFlag } from './injectTimerButton.js';
-import { StorageService } from '../utils/storage';
-import { STORAGE_KEYS } from '../utils/constants';
+import { StorageService } from '../utils/storage.js';
+import { STORAGE_KEYS } from '../utils/constants.js';
 
 console.log('content script loaded, timestamp:', Date.now());
 

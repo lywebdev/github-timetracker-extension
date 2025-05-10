@@ -2,8 +2,8 @@ import { useEffect, useState } from 'preact/hooks';
 import './TrackedList.css';
 import { TimerService } from '../../../utils/timer.js';
 import { TimeService } from '../../../utils/time.js';
-import { StorageService } from '../../../utils/storage';
-import { STORAGE_KEYS, TIME_UPDATE_INTERVAL } from '../../../utils/constants';
+import { StorageService } from '../../../utils/storage.js';
+import { STORAGE_KEYS, TIME_UPDATE_INTERVAL } from '../../../utils/constants.js';
 
 export function TrackedList({ entries, showTimerControls = false }) {
     const [activeIssue, setActiveIssue] = useState(null);

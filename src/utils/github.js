@@ -1,4 +1,4 @@
-import { GITHUB_API_URL, COMMENT_TEMPLATE } from './constants';
+import { GITHUB_API_URL, COMMENT_TEMPLATE } from './constants.js';
 import {GitHubStorageService} from "./github-storage.js";
 
 export class GitHubService {
