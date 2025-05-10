@@ -57,3 +57,23 @@ chrome.runtime.onStartup.addListener(async () => {
 chrome.runtime.onSuspend.addListener(async () => {
     await handleTimerStop('browser closing');
 });
+
+// Пересылка сообщений timerStarted/timerStopped ко всем вкладкам GitHub
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    console.log('Background received message:', message);
+    if (message.action === 'timerStarted' || message.action === 'timerStopped') {
+        // Рассылаем сообщение всем вкладкам GitHub
+        chrome.tabs.query({ url: '*://github.com/*' }, (tabs) => {
+            tabs.forEach((tab) => {
+                chrome.tabs.sendMessage(tab.id, message, (response) => {
+                    if (chrome.runtime.lastError) {
+                        console.log(`Failed to send message to tab ${tab.id}:`, chrome.runtime.lastError.message);
+                    } else {
+                        console.log(`Message sent to tab ${tab.id}, response:`, response);
+                    }
+                });
+            });
+        });
+        sendResponse({ received: true });
+    }
+});

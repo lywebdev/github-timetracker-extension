@@ -1,4 +1,6 @@
 import { injectTimerButton, resetInjectedFlag } from './injectTimerButton.js';
+import { StorageService } from '../utils/storage';
+import { STORAGE_KEYS } from '../utils/constants';
 
 console.log('content script loaded, timestamp:', Date.now());
 
@@ -20,7 +22,7 @@ function isIssuePage() {
 const debouncedInjectTimerButton = debounce(injectTimerButton, 100);
 
 // Рекурсивная проверка контейнера
-function checkContainer(attempts = 10, delay = 1000) {
+function checkContainer(attempts = 10, delay = 500) {
     console.log(`checkContainer: attempts left ${attempts}, pathname: ${location.pathname}`);
     const container = document.querySelector('[data-testid="issue-metadata-fixed"]');
     if (container || attempts <= 0) {
@@ -31,9 +33,24 @@ function checkContainer(attempts = 10, delay = 1000) {
     setTimeout(() => checkContainer(attempts - 1, delay), delay);
 }
 
+// Периодическая проверка состояния таймера
+function checkTimerState() {
+    StorageService.getMultiple([STORAGE_KEYS.ACTIVE_ISSUE, STORAGE_KEYS.START_TIME]).then(
+        ({ activeIssue, startTime }) => {
+            if (isIssuePage() && activeIssue === location.pathname && startTime && !isNaN(new Date(startTime).getTime())) {
+                console.log('Timer is active for current page, injecting button');
+                resetInjectedFlag();
+                checkContainer();
+            }
+        }
+    );
+}
+
 // Инициализация при загрузке
 if (isIssuePage()) {
     checkContainer();
+    // Запускаем периодическую проверку состояния таймера
+    setInterval(checkTimerState, 2000);
 }
 
 // Отслеживание изменений DOM и URL для SPA-навигации
@@ -63,7 +80,7 @@ const containerObserver = new MutationObserver((mutations) => {
 const container = document.querySelector('[data-testid="issue-metadata-fixed"]');
 if (container) {
     console.log('containerObserver: initial container found');
-    containerObserver.observe(container, { childList: true }); // Убрали subtree: true
+    containerObserver.observe(container, { childList: true });
 }
 
 // Динамическое отслеживание появления контейнера
@@ -71,7 +88,7 @@ const bodyObserver = new MutationObserver(() => {
     const newContainer = document.querySelector('[data-testid="issue-metadata-fixed"]');
     if (newContainer && !container) {
         console.log('bodyObserver: new container found');
-        containerObserver.observe(newContainer, { childList: true }); // Убрали subtree: true
+        containerObserver.observe(newContainer, { childList: true });
         debouncedInjectTimerButton();
     }
 });
@@ -103,7 +120,7 @@ history.pushState = function (...args) {
     }
 };
 
-// Обработчик сообщений от popup для синхронизации таймера
+// Обработчик сообщений от popup/background для синхронизации таймера
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     console.log('Received message:', message);
     if (message.action === 'timerStarted' || message.action === 'timerStopped') {
@@ -114,14 +131,16 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             // Проверяем контейнер перед обновлением кнопки
             const container = document.querySelector('[data-testid="issue-metadata-fixed"]');
             if (container) {
+                console.log('Container found, injecting button');
                 debouncedInjectTimerButton();
             } else {
-                // Если контейнер не найден, пробуем снова через checkContainer
-                checkContainer(5, 500);
+                console.log('Container not found, retrying with checkContainer');
+                checkContainer(15, 500);
             }
         } else {
             console.log('Message ignored: not on matching issue page or not an issue page');
         }
+        sendResponse({ received: true });
     }
 });
 
