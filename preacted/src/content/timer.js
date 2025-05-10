@@ -13,6 +13,19 @@ export class TimerService {
     }
 
     static async startTimer(issueUrl, btn) {
+        // Check if there's an existing active timer
+        const [currentActiveIssue, startTime] = await Promise.all([
+            StorageService.get(STORAGE_KEYS.ACTIVE_ISSUE),
+            StorageService.get(STORAGE_KEYS.START_TIME),
+        ]);
+
+        if (currentActiveIssue && startTime && currentActiveIssue !== issueUrl) {
+            console.log(`Stopping timer for previous issue: ${currentActiveIssue}`);
+            // Stop the previous timer and save its data
+            await this.stopTimer(currentActiveIssue, btn);
+        }
+
+        // Start the new timer
         await StorageService.set(STORAGE_KEYS.ACTIVE_ISSUE, issueUrl);
         await StorageService.set(STORAGE_KEYS.START_TIME, new Date().toISOString());
 
