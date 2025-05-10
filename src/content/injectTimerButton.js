@@ -15,14 +15,15 @@ export function resetInjectedFlag() {
 }
 
 export async function injectTimerButton() {
-    if (!isIssuePage() || isInjected) {
-        console.log(`injectTimerButton: skipped (isIssuePage: ${isIssuePage()}, isInjected: ${isInjected})`);
+    if (!isIssuePage()) {
+        console.log('injectTimerButton: skipped (not an issue page)');
         return;
     }
 
     const container = document.querySelector('[data-testid="issue-metadata-fixed"]');
-    if (!container) {
-        console.log('injectTimerButton: no container found');
+    const buttonExists = document.querySelector('#track-time-btn');
+    if (!container || buttonExists || isInjected) {
+        console.log(`injectTimerButton: skipped (container: ${!!container}, buttonExists: ${!!buttonExists}, isInjected: ${isInjected})`);
         return;
     }
 
@@ -40,13 +41,17 @@ export async function injectTimerButton() {
     isInjected = true;
 
     const updateButton = async () => {
+        if (!document.querySelector('#track-time-btn')) {
+            console.log('updateButton: button not found, skipping update');
+            return;
+        }
         console.log('updateButton: fetching storage data');
         const { activeIssue, startTime } = await getStorageData();
-        const totalTime = await TimerService.getTotalTimeForIssue(location.pathname);
+        const totalTime = await TimerService.getTotalTimeForIssue(location.pathname) || 0;
         if (activeIssue === location.pathname && startTime && !isNaN(new Date(startTime).getTime())) {
             updateButtonText(btn, startTime, totalTime);
             if (!btn.dataset.intervalId) {
-                startButtonUpdateInterval(btn, startTime, totalTime);
+                startButtonUpdateInterval(btn, totalTime);
             }
         } else {
             btn.textContent = `${TimeService.formatTime(0, totalTime)} Start Timer`;
@@ -57,10 +62,12 @@ export async function injectTimerButton() {
         }
     };
 
-    // Инициализация кнопки
-    await updateButton();
+    // Добавляем кнопку в DOM перед обновлением
     container.append(btn);
     console.log('injectTimerButton: button appended');
+
+    // Инициализация кнопки
+    await updateButton();
 
     // Слушатель кликов
     btn.addEventListener('click', async () => {
@@ -71,6 +78,7 @@ export async function injectTimerButton() {
         } else {
             await TimerService.startTimer(location.pathname, btn);
         }
+        await updateButton(); // Обновляем кнопку после клика
     });
 
     // Слушатель изменений trackedTimes
@@ -100,7 +108,7 @@ function createTimerButton() {
     btn.id = 'track-time-btn';
     btn.style.marginTop = '10px';
     btn.className = 'btn btn-sm';
-    btn.textContent = '';
+    btn.textContent = 'Start Timer'; // Устанавливаем начальный текст
     return btn;
 }
 
@@ -119,9 +127,21 @@ function updateButtonText(btn, startTime, totalTime) {
     btn.textContent = `${TimeService.timeStringSince(startTime, totalTime)} ⏸ Stop`;
 }
 
-function startButtonUpdateInterval(btn, startTime, totalTime) {
-    const intervalId = setInterval(() => {
-        updateButtonText(btn, startTime, totalTime);
+function startButtonUpdateInterval(btn, totalTime) {
+    const intervalId = setInterval(async () => {
+        if (!document.querySelector('#track-time-btn')) {
+            clearInterval(intervalId);
+            delete btn.dataset.intervalId;
+            return;
+        }
+        const { startTime } = await getStorageData();
+        if (startTime && !isNaN(new Date(startTime).getTime())) {
+            updateButtonText(btn, startTime, totalTime);
+        } else {
+            btn.textContent = `${TimeService.formatTime(0, totalTime)} Start Timer`;
+            clearInterval(intervalId);
+            delete btn.dataset.intervalId;
+        }
     }, TIME_UPDATE_INTERVAL);
     btn.dataset.intervalId = intervalId;
 }
