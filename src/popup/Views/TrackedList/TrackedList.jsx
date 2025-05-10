@@ -87,20 +87,17 @@ export function TrackedList({ entries, showTimerControls = false }) {
         console.log('handleTimerClick:', entry.issueUrl, 'action:', entry.issueUrl === activeIssue ? 'stop' : 'start');
         if (entry.issueUrl === activeIssue && startTime && !isNaN(new Date(startTime).getTime())) {
             // Останавливаем таймер
-            await TimerService.stopTimer(entry.issueUrl, {});
+            const result = await TimerService.stopTimer(entry.issueUrl);
             setCurrentTimes((prev) => {
                 const newTimes = { ...prev };
                 delete newTimes[entry.issueUrl];
                 return newTimes;
             });
-            // Уведомляем content script об остановке
-            console.log('Sending timerStopped message:', { action: 'timerStopped', issueUrl: entry.issueUrl });
             chrome.runtime.sendMessage({ action: 'timerStopped', issueUrl: entry.issueUrl });
         } else {
             // Запускаем таймер
-            await TimerService.startTimer(entry.issueUrl, {});
-            // Уведомляем content script о запуске
-            console.log('Sending timerStarted message:', { action: 'timerStarted', issueUrl: entry.issueUrl });
+            await TimerService.startTimer(entry.issueUrl);
+            // Не устанавливаем currentTimes здесь, полагаемся на useEffect
             chrome.runtime.sendMessage({ action: 'timerStarted', issueUrl: entry.issueUrl });
         }
     };

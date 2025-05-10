@@ -92,7 +92,6 @@ export function SummaryView() {
             acc[entry.issueUrl].seconds += entry.seconds;
             return acc;
         }, {});
-
         return Object.values(grouped).map((e) => ({
             ...e,
             displayTime:

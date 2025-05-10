@@ -12,8 +12,7 @@ export class TimerService {
             .reduce((total, entry) => total + (entry.seconds || 0), 0);
     }
 
-    static async startTimer(issueUrl, btn) {
-        // Check if there's an existing active timer
+    static async startTimer(issueUrl, btn = null) {
         const [currentActiveIssue, startTime] = await Promise.all([
             StorageService.get(STORAGE_KEYS.ACTIVE_ISSUE),
             StorageService.get(STORAGE_KEYS.START_TIME),
@@ -21,30 +20,40 @@ export class TimerService {
 
         if (currentActiveIssue && startTime && currentActiveIssue !== issueUrl) {
             console.log(`Stopping timer for previous issue: ${currentActiveIssue}`);
-            // Stop the previous timer and save its data
             await this.stopTimer(currentActiveIssue, btn);
         }
 
-        // Start the new timer
         await StorageService.set(STORAGE_KEYS.ACTIVE_ISSUE, issueUrl);
         await StorageService.set(STORAGE_KEYS.START_TIME, new Date().toISOString());
 
         const totalTime = await this.getTotalTimeForIssue(issueUrl);
-        btn.textContent = `${TimeService.formatTime(0, totalTime)} ⏸ Stop`;
-        const intervalId = setInterval(async () => {
-            const startTime = await StorageService.get(STORAGE_KEYS.START_TIME);
-            if (!startTime || isNaN(new Date(startTime).getTime())) {
-                clearInterval(intervalId);
-                btn.textContent = `${TimeService.formatTime(0, totalTime)} Start Timer`;
-                return;
-            }
-            btn.textContent = `${TimeService.timeStringSince(startTime, totalTime)} ⏸ Stop`;
-        }, TIME_UPDATE_INTERVAL);
+        let intervalId = null;
 
-        btn.dataset.intervalId = intervalId;
+        if (btn) {
+            // Логика для DOM-элемента (как в injectTimerButton.js)
+            btn.textContent = `${TimeService.formatTime(0, totalTime)} ⏸ Stop`;
+            intervalId = setInterval(async () => {
+                const startTime = await StorageService.get(STORAGE_KEYS.START_TIME);
+                if (!startTime || isNaN(new Date(startTime).getTime())) {
+                    clearInterval(intervalId);
+                    btn.textContent = `${TimeService.formatTime(0, totalTime)} Start Timer`;
+                    return;
+                }
+                btn.textContent = `${TimeService.timeStringSince(startTime, totalTime)} ⏸ Stop`;
+            }, TIME_UPDATE_INTERVAL);
+            btn.dataset.intervalId = intervalId;
+        }
+
+        // Возвращаем данные для UI в popup
+        return {
+            issueUrl,
+            totalTime,
+            intervalId,
+            isRunning: true
+        };
     }
 
-    static async stopTimer(issueUrl, btn) {
+    static async stopTimer(issueUrl, btn = null) {
         const [startTime, token, trackedTimes] = await Promise.all([
             StorageService.get(STORAGE_KEYS.START_TIME),
             GitHubStorageService.getGitHubToken(),
@@ -53,13 +62,15 @@ export class TimerService {
 
         if (!startTime || isNaN(new Date(startTime).getTime())) {
             console.error('Invalid startTime:', startTime);
-            clearInterval(btn.dataset.intervalId);
-            btn.textContent = 'Start Timer';
+            if (btn && btn.dataset.intervalId) {
+                clearInterval(btn.dataset.intervalId);
+                btn.textContent = 'Start Timer';
+            }
             await StorageService.removeMultiple([
                 STORAGE_KEYS.ACTIVE_ISSUE,
                 STORAGE_KEYS.START_TIME,
             ]);
-            return;
+            return { issueUrl, isRunning: false };
         }
 
         const timeSpent = (Date.now() - new Date(startTime).getTime()) / 1000;
@@ -68,13 +79,15 @@ export class TimerService {
             issueInfo = GitHubService.parseIssueUrl(issueUrl);
         } catch (error) {
             console.error('Failed to parse issue URL:', error);
-            clearInterval(btn.dataset.intervalId);
-            btn.textContent = 'Start Timer';
+            if (btn && btn.dataset.intervalId) {
+                clearInterval(btn.dataset.intervalId);
+                btn.textContent = 'Start Timer';
+            }
             await StorageService.removeMultiple([
                 STORAGE_KEYS.ACTIVE_ISSUE,
                 STORAGE_KEYS.START_TIME,
             ]);
-            return;
+            return { issueUrl, isRunning: false };
         }
 
         const { owner, repo, issueNumber } = issueInfo;
@@ -104,8 +117,16 @@ export class TimerService {
         ]);
 
         const totalTime = await this.getTotalTimeForIssue(issueUrl);
-        clearInterval(btn.dataset.intervalId);
-        btn.textContent = `${TimeService.formatTime(0, totalTime)} Start Timer`;
+        if (btn && btn.dataset.intervalId) {
+            clearInterval(btn.dataset.intervalId);
+            btn.textContent = `${TimeService.formatTime(0, totalTime)} Start Timer`;
+        }
+
+        return {
+            issueUrl,
+            totalTime,
+            isRunning: false
+        };
     }
 
     static getIssueTitle() {
