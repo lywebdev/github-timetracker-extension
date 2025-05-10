@@ -22,5 +22,5 @@ export function SummaryView() {
         }));
     }, [tracked]);
 
-    return <TrackedList entries={entries} />;
+    return <TrackedList entries={entries} showTimerControls={true} />;
 }

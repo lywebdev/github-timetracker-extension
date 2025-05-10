@@ -103,6 +103,28 @@ history.pushState = function (...args) {
     }
 };
 
+// Обработчик сообщений от popup для синхронизации таймера
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    console.log('Received message:', message);
+    if (message.action === 'timerStarted' || message.action === 'timerStopped') {
+        console.log(`Processing ${message.action} for issueUrl: ${message.issueUrl}, current pathname: ${location.pathname}`);
+        if (isIssuePage() && message.issueUrl === location.pathname) {
+            console.log('Updating timer button on current issue page');
+            resetInjectedFlag();
+            // Проверяем контейнер перед обновлением кнопки
+            const container = document.querySelector('[data-testid="issue-metadata-fixed"]');
+            if (container) {
+                debouncedInjectTimerButton();
+            } else {
+                // Если контейнер не найден, пробуем снова через checkContainer
+                checkContainer(5, 500);
+            }
+        } else {
+            console.log('Message ignored: not on matching issue page or not an issue page');
+        }
+    }
+});
+
 // Очистка при выходе
 window.addEventListener('unload', () => {
     console.log('unload: cleaning up observers and pushState');

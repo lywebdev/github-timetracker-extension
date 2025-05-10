@@ -8,6 +8,7 @@ import { HistoryView } from './Views/TrackedList/HistoryView.jsx';
 import { GitHubStorageService } from '../utils/github-storage';
 import { StorageService } from '../utils/storage';
 import { STORAGE_KEYS } from '../utils/constants';
+import './App.css';
 
 export function App() {
     const NO_TOKEN_TEXT = 'no token';
@@ -131,15 +132,15 @@ export function App() {
                             { id: 'summary', label: 'Summary', content: <SummaryView /> },
                             { id: 'history', label: 'History', content: <HistoryView /> }
                         ]}
+                        tabsHeaderRight={<div
+                            onClick={handleClearTrackedTimes}
+                            className='clearTrackedTimesBtn'
+                        >
+                            Clear
+                        </div>}
                     />
                 </div>
-                <Button
-                    onClick={handleClearTrackedTimes}
-                    variant="danger"
-                    style={{ marginLeft: '10px', padding: '5px 10px', fontSize: '0.9em' }}
-                >
-                    Clear
-                </Button>
+
             </div>
 
             {showClearConfirm && (

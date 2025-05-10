@@ -1,9 +1,10 @@
 export class TimeService {
     static formatTime(seconds, offsetSeconds = 0) {
         const totalSeconds = Math.floor(seconds + offsetSeconds);
-        const m = Math.floor(totalSeconds / 60);
+        const h = Math.floor(totalSeconds / 3600);
+        const m = Math.floor((totalSeconds % 3600) / 60);
         const s = Math.floor(totalSeconds % 60);
-        return `${m}m ${s < 10 ? '0' : ''}${s}s`;
+        return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
     }
 
     static timeStringSince(startTime, offsetSeconds = 0) {

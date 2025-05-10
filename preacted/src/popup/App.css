@@ -1,0 +1,9 @@
+.clearTrackedTimesBtn {
+    /*style={{ marginLeft: '10px', padding: '5px 10px', fontSize: '0.9em' }}*/
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.clearTrackedTimesBtn:hover {
+    text-decoration: underline;
+}
