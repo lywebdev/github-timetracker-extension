@@ -1,8 +1,8 @@
-import { TimeService } from '../utils/time';
-import { GitHubService } from '../utils/github';
-import { StorageService } from '../utils/storage';
-import { GitHubStorageService } from '../utils/github-storage';
-import { STORAGE_KEYS, TIME_UPDATE_INTERVAL } from '../utils/constants';
+import { TimeService } from './time.js';
+import { GitHubService } from './github.js';
+import { StorageService } from './storage.js';
+import { GitHubStorageService } from './github-storage.js';
+import { STORAGE_KEYS, TIME_UPDATE_INTERVAL } from './constants.js';
 
 export class TimerService {
     static async getTotalTimeForIssue(issueUrl) {

@@ -1,7 +1,7 @@
 import { useMemo, useState, useEffect } from 'preact/hooks';
 import { TimeService } from '../../../utils/time.js';
 import { TrackedList } from './TrackedList.jsx';
-import { TimerService } from '../../../content/timer';
+import { TimerService } from '../../../utils/timer.js';
 import { StorageService } from '../../../utils/storage';
 import { STORAGE_KEYS } from '../../../utils/constants.js';
 import { useStorageListener } from '../../../hooks/useStorageListener.js';

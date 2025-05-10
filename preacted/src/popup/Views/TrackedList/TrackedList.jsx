@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'preact/hooks';
 import './TrackedList.css';
-import { TimerService } from '../../../content/timer';
+import { TimerService } from '../../../utils/timer.js';
 import { TimeService } from '../../../utils/time.js';
 import { StorageService } from '../../../utils/storage';
 import { STORAGE_KEYS, TIME_UPDATE_INTERVAL } from '../../../utils/constants';

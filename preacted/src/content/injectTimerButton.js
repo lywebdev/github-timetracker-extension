@@ -1,4 +1,4 @@
-import { TimerService } from './timer';
+import { TimerService } from '../utils/timer.js';
 import { TimeService } from '../utils/time';
 import { addStorageListener } from '../utils/storage-listener.js';
 import { STORAGE_KEYS, TIME_UPDATE_INTERVAL } from '../utils/constants';
