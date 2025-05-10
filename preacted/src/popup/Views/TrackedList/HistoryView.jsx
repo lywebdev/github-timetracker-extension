@@ -1,20 +1,18 @@
-import { useState, useEffect } from 'preact/hooks'
-import {TrackedList} from "./TrackedList.jsx";
-import {TimeService} from "../../../utils/time.js";
+import { useMemo } from 'preact/hooks';
+import { TrackedList } from './TrackedList.jsx';
+import { TimeService } from '../../../utils/time.js';
+import { STORAGE_KEYS } from '../../../utils/constants.js';
+import { useStorageListener } from '../../../hooks/useStorageListener.js';
 
 export function HistoryView() {
-    const [entries, setEntries] = useState([])
+    const tracked = useStorageListener(STORAGE_KEYS.TRACKED_TIMES, []);
 
-    useEffect(() => {
-        chrome.storage.local.get("trackedTimes", (data) => {
-            const tracked = (data.trackedTimes || []).slice(-10).reverse()
-            const formatted = tracked.map(e => ({
-                ...e,
-                displayTime: TimeService.formatTime(e.seconds),
-            }))
-            setEntries(formatted)
-        })
-    }, [])
+    const entries = useMemo(() => {
+        return tracked.slice(-10).reverse().map((e) => ({
+            ...e,
+            displayTime: TimeService.formatTime(e.seconds),
+        }));
+    }, [tracked]);
 
-    return <TrackedList entries={entries} />
+    return <TrackedList entries={entries} />;
 }

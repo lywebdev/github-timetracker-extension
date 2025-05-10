@@ -1,29 +1,26 @@
-import { useState, useEffect } from 'preact/hooks'
-import {TimeService} from '../../../utils/time.js';
-import {TrackedList} from "./TrackedList.jsx";
+import { useMemo } from 'preact/hooks';
+import { TimeService } from '../../../utils/time.js';
+import { TrackedList } from './TrackedList.jsx';
+import { STORAGE_KEYS } from '../../../utils/constants.js';
+import { useStorageListener } from '../../../hooks/useStorageListener.js';
 
 export function SummaryView() {
-    const [entries, setEntries] = useState([])
+    const tracked = useStorageListener(STORAGE_KEYS.TRACKED_TIMES, []);
 
-    useEffect(() => {
-        chrome.storage.local.get("trackedTimes", (data) => {
-            const tracked = data.trackedTimes || []
-            const grouped = tracked.reduce((acc, entry) => {
-                if (!acc[entry.issueUrl]) {
-                    acc[entry.issueUrl] = { title: entry.title, seconds: 0, issueUrl: entry.issueUrl }
-                }
-                acc[entry.issueUrl].seconds += entry.seconds
-                return acc
-            }, {})
+    const entries = useMemo(() => {
+        const grouped = tracked.reduce((acc, entry) => {
+            if (!acc[entry.issueUrl]) {
+                acc[entry.issueUrl] = { title: entry.title, seconds: 0, issueUrl: entry.issueUrl };
+            }
+            acc[entry.issueUrl].seconds += entry.seconds;
+            return acc;
+        }, {});
 
-            const formatted = Object.values(grouped).map(e => ({
-                ...e,
-                displayTime: TimeService.formatTime(e.seconds),
-            }))
+        return Object.values(grouped).map((e) => ({
+            ...e,
+            displayTime: TimeService.formatTime(e.seconds),
+        }));
+    }, [tracked]);
 
-            setEntries(formatted)
-        })
-    }, [])
-
-    return <TrackedList entries={entries} />
+    return <TrackedList entries={entries} />;
 }

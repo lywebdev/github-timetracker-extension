@@ -2,9 +2,12 @@ import { useState, useEffect } from 'preact/hooks';
 import { Tabs } from './Tabs';
 import { Button } from '../components/Button/Button.jsx';
 import { Input } from '../components/Input/Input.jsx';
+import { Modal } from '../components/Modal/Modal.jsx';
 import { SummaryView } from './Views/TrackedList/SummaryView.jsx';
 import { HistoryView } from './Views/TrackedList/HistoryView.jsx';
 import { GitHubStorageService } from '../utils/github-storage';
+import { StorageService } from '../utils/storage';
+import { STORAGE_KEYS } from '../utils/constants';
 
 export function App() {
     const NO_TOKEN_TEXT = 'no token';
@@ -13,6 +16,7 @@ export function App() {
     const [isEditing, setIsEditing] = useState(false);
     const [maskedToken, setMaskedToken] = useState(NO_TOKEN_TEXT);
     const [tokenStatus, setTokenStatus] = useState(null);
+    const [showClearConfirm, setShowClearConfirm] = useState(false);
 
     useEffect(() => {
         const loadToken = async () => {
@@ -53,6 +57,25 @@ export function App() {
         await GitHubStorageService.removeGitHubToken();
         setMaskedToken(NO_TOKEN_TEXT);
         setToken('');
+    };
+
+    const handleClearTrackedTimes = () => {
+        setShowClearConfirm(true);
+    };
+
+    const confirmClear = async () => {
+        try {
+            await StorageService.remove(STORAGE_KEYS.TRACKED_TIMES);
+            setShowClearConfirm(false);
+        } catch (error) {
+            console.error('Failed to clear tracked times:', error);
+            setShowClearConfirm(false);
+            alert('Failed to clear tracked times. Please try again.');
+        }
+    };
+
+    const cancelClear = () => {
+        setShowClearConfirm(false);
     };
 
     return (
@@ -101,12 +124,32 @@ export function App() {
                 </>
             )}
 
-            <Tabs
-                tabs={[
-                    { id: 'summary', label: 'Summary', content: <SummaryView /> },
-                    { id: 'history', label: 'History', content: <HistoryView /> }
-                ]}
-            />
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                <div style={{ flex: 1 }}>
+                    <Tabs
+                        tabs={[
+                            { id: 'summary', label: 'Summary', content: <SummaryView /> },
+                            { id: 'history', label: 'History', content: <HistoryView /> }
+                        ]}
+                    />
+                </div>
+                <Button
+                    onClick={handleClearTrackedTimes}
+                    variant="danger"
+                    style={{ marginLeft: '10px', padding: '5px 10px', fontSize: '0.9em' }}
+                >
+                    Clear
+                </Button>
+            </div>
+
+            {showClearConfirm && (
+                <Modal
+                    title="Confirm Clear"
+                    message="Are you sure you want to clear all tracked times? This action cannot be undone."
+                    onConfirm={confirmClear}
+                    onCancel={cancelClear}
+                />
+            )}
         </div>
     );
 }
