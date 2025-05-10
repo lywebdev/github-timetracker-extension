@@ -51,14 +51,19 @@ const observer = new MutationObserver(() => {
 observer.observe(document.body, { childList: true, subtree: true });
 
 // Отслеживание контейнера
-const containerObserver = new MutationObserver(() => {
+const containerObserver = new MutationObserver((mutations) => {
+    // Проверяем, есть ли уже кнопка
+    const buttonExists = document.querySelector('#track-time-btn');
+    if (buttonExists) {
+        return; // Пропускаем, если кнопка уже создана
+    }
     console.log('containerObserver: container changed');
     debouncedInjectTimerButton();
 });
 const container = document.querySelector('[data-testid="issue-metadata-fixed"]');
 if (container) {
     console.log('containerObserver: initial container found');
-    containerObserver.observe(container, { childList: true, subtree: true });
+    containerObserver.observe(container, { childList: true }); // Убрали subtree: true
 }
 
 // Динамическое отслеживание появления контейнера
@@ -66,7 +71,7 @@ const bodyObserver = new MutationObserver(() => {
     const newContainer = document.querySelector('[data-testid="issue-metadata-fixed"]');
     if (newContainer && !container) {
         console.log('bodyObserver: new container found');
-        containerObserver.observe(newContainer, { childList: true, subtree: true });
+        containerObserver.observe(newContainer, { childList: true }); // Убрали subtree: true
         debouncedInjectTimerButton();
     }
 });
