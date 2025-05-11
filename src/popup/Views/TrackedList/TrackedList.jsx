@@ -85,9 +85,10 @@ export function TrackedList({ entries, showTimerControls = false }) {
     // Обработчик клика по кнопке Start/Stop
     const handleTimerClick = async (entry) => {
         console.log('handleTimerClick:', entry.issueUrl, 'action:', entry.issueUrl === activeIssue ? 'stop' : 'start');
+        console.log('entry', entry);
         if (entry.issueUrl === activeIssue && startTime && !isNaN(new Date(startTime).getTime())) {
             // Останавливаем таймер
-            const result = await TimerService.stopTimer(entry.issueUrl);
+            const result = await TimerService.stopTimer(entry.issueUrl, null, entry.title);
             setCurrentTimes((prev) => {
                 const newTimes = { ...prev };
                 delete newTimes[entry.issueUrl];
