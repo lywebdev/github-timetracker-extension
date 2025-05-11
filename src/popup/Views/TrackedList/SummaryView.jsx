@@ -4,13 +4,13 @@ import { TrackedList } from './TrackedList.jsx';
 import { TimerService } from '../../../utils/timer.js';
 import { StorageService } from '../../../utils/storage.js';
 import { STORAGE_KEYS } from '../../../utils/constants.js';
-import { useStorageListener } from '../../../hooks/useStorageListener.js';
+import {SearchBar} from "../../../components/SearchBar/SearchBar.jsx";
 
-export function SummaryView() {
-    const tracked = useStorageListener(STORAGE_KEYS.TRACKED_TIMES, []);
+export function SummaryView({tracked}) {
     const [activeIssue, setActiveIssue] = useState(null);
     const [startTime, setStartTime] = useState(null);
     const [currentTimes, setCurrentTimes] = useState({});
+    const [searchTerm, setSearchTerm] = useState(''); // Добавляем состояние для поиска
 
     // Загружаем данные об активной задаче и синхронизируем
     useEffect(() => {
@@ -84,8 +84,19 @@ export function SummaryView() {
         };
     }, [activeIssue, startTime]);
 
+    const handleSearch = (term) => {
+        setSearchTerm(term);
+    };
+
+    const filteredTracked = useMemo(() => {
+        return tracked.filter(entry =>
+            entry.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            entry.issueUrl.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+    }, [tracked, searchTerm]);
+
     const entries = useMemo(() => {
-        const grouped = tracked.reduce((acc, entry) => {
+        const grouped = filteredTracked.reduce((acc, entry) => {
             if (!acc[entry.issueUrl]) {
                 acc[entry.issueUrl] = { title: entry.title, seconds: 0, issueUrl: entry.issueUrl };
             }
@@ -99,7 +110,12 @@ export function SummaryView() {
                     ? currentTimes[e.issueUrl]
                     : TimeService.formatTime(e.seconds),
         }));
-    }, [tracked, currentTimes, activeIssue]);
+    }, [filteredTracked, currentTimes, activeIssue]);
 
-    return <TrackedList entries={entries} showTimerControls={true} />;
+    return (
+        <>
+            <SearchBar onSearch={handleSearch} />
+            <TrackedList entries={entries} showTimerControls={true} />
+        </>
+    );
 }

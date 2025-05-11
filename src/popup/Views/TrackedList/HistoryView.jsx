@@ -1,18 +1,33 @@
-import { useMemo } from 'preact/hooks';
+import { useMemo, useState } from 'preact/hooks';
 import { TrackedList } from './TrackedList.jsx';
 import { TimeService } from '../../../utils/time.js';
-import { STORAGE_KEYS } from '../../../utils/constants.js';
-import { useStorageListener } from '../../../hooks/useStorageListener.js';
+import {SearchBar} from "../../../components/SearchBar/SearchBar.jsx";
 
-export function HistoryView() {
-    const tracked = useStorageListener(STORAGE_KEYS.TRACKED_TIMES, []);
+export function HistoryView({tracked}) {
+    const [searchTerm, setSearchTerm] = useState('');
+
+    const handleSearch = (term) => {
+        setSearchTerm(term);
+    };
+
+    const filteredTracked = useMemo(() => {
+        return tracked.filter(entry =>
+            entry.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (entry.issueUrl && entry.issueUrl.toLowerCase().includes(searchTerm.toLowerCase()))
+        );
+    }, [tracked, searchTerm]);
 
     const entries = useMemo(() => {
-        return tracked.slice(-10).reverse().map((e) => ({
+        return filteredTracked.slice(-10).reverse().map((e) => ({
             ...e,
             displayTime: TimeService.formatTime(e.seconds),
         }));
-    }, [tracked]);
+    }, [filteredTracked]);
 
-    return <TrackedList entries={entries} />;
+    return (
+        <>
+            <SearchBar onSearch={handleSearch} />
+            <TrackedList entries={entries} />
+        </>
+    );
 }

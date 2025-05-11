@@ -108,7 +108,7 @@ function createTimerButton() {
     btn.id = 'track-time-btn';
     btn.style.marginTop = '10px';
     btn.className = 'btn btn-sm';
-    btn.textContent = 'Start Timer'; // Устанавливаем начальный текст
+    btn.textContent = 'Start Timer';
     return btn;
 }
 

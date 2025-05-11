@@ -9,6 +9,8 @@ import { GitHubStorageService } from '../utils/github-storage.js';
 import { StorageService } from '../utils/storage.js';
 import { STORAGE_KEYS } from '../utils/constants.js';
 import './App.css';
+import {useStorageListener} from "../hooks/useStorageListener.js";
+import {IssueStorageService} from "../utils/issue-storage.js";
 
 export function App() {
     const NO_TOKEN_TEXT = 'no token';
@@ -18,6 +20,8 @@ export function App() {
     const [maskedToken, setMaskedToken] = useState(NO_TOKEN_TEXT);
     const [tokenStatus, setTokenStatus] = useState(null);
     const [showClearConfirm, setShowClearConfirm] = useState(false);
+
+    const tracked = useStorageListener(STORAGE_KEYS.TRACKED_TIMES, []);
 
     useEffect(() => {
         const loadToken = async () => {
@@ -67,6 +71,7 @@ export function App() {
     const confirmClear = async () => {
         try {
             await StorageService.remove(STORAGE_KEYS.TRACKED_TIMES);
+            await IssueStorageService.removeAll();
             setShowClearConfirm(false);
         } catch (error) {
             console.error('Failed to clear tracked times:', error);
@@ -125,23 +130,24 @@ export function App() {
                 </div>
             )}
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div style={{ flex: 1 }}>
-                    <Tabs
-                        tabs={[
-                            { id: 'summary', label: 'Summary', content: <SummaryView /> },
-                            { id: 'history', label: 'History', content: <HistoryView /> }
-                        ]}
-                        tabsHeaderRight={<div
-                            onClick={handleClearTrackedTimes}
-                            className='clearTrackedTimesBtn'
-                        >
-                            Clear
-                        </div>}
-                    />
-                </div>
-
-            </div>
+            {
+                tracked.length > 0 && (<div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                    <div style={{flex: 1}}>
+                        <Tabs
+                            tabs={[
+                                {id: 'summary', label: 'Summary', content: <SummaryView tracked={tracked}/>},
+                                {id: 'history', label: 'History', content: <HistoryView tracked={tracked}/>}
+                            ]}
+                            tabsHeaderRight={<div
+                                onClick={handleClearTrackedTimes}
+                                className='clearTrackedTimesBtn'
+                            >
+                                Clear
+                            </div>}
+                        />
+                    </div>
+                </div>)
+            }
 
             {showClearConfirm && (
                 <Modal

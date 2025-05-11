@@ -31,6 +31,10 @@ export class IssueStorageService {
         await StorageService.set(STORAGE_KEY, filtered);
     }
 
+    static async removeAll() {
+        await StorageService.remove(STORAGE_KEYS.ISSUES);
+    }
+
     static async getByUrl(url) {
         const issues = await this.getAll();
         return issues.find(issue => issue.url === url) || null;
