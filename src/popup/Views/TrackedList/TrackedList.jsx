@@ -118,7 +118,7 @@ export function TrackedList({ entries, showTimerControls = false }) {
                                 {' | '}
                                 <span
                                     onClick={() => handleTimerClick(entry)}
-                                    style={{ color: '#007bff', cursor: 'pointer', textDecoration: 'underline' }}
+                                    className='startTrackingBtn'
                                 >
                                     {entry.issueUrl === activeIssue &&
                                     startTime &&

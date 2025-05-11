@@ -80,11 +80,11 @@ export function App() {
     };
 
     return (
-        <div style={{ fontFamily: 'sans-serif', padding: '10px', width: '300px' }}>
+        <div className='popup'>
             <h2>⏱️ GitHub Time Tracker</h2>
 
             {!isEditing ? (
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px', marginTop: '15px' }}>
                     <span style={{ fontSize: '0.9em', color: '#555' }}>
                         {token ? '✅' : '❌'} Token: {maskedToken}
                     </span>
@@ -106,7 +106,7 @@ export function App() {
                     </div>
                 </div>
             ) : (
-                <>
+                <div style={{marginBottom: '15px', marginTop: '15px'}}>
                     <Input
                         type="password"
                         value={token}
@@ -122,10 +122,10 @@ export function App() {
                         <Button onClick={handleSaveToken}>Save Token</Button>
                         <Button variant="secondary" onClick={handleCancelClick}>Cancel</Button>
                     </div>
-                </>
+                </div>
             )}
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div style={{ flex: 1 }}>
                     <Tabs
                         tabs={[

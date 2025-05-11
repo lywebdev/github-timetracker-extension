@@ -1,20 +1,24 @@
 .tracked-list {
     padding: 4px 0;
+    font-size: 14px;
 }
 
 .tracked-entry {
-    margin-bottom: 10px;
+}
+
+.tracked-entry:not(:last-child) {
     border-bottom: 1px solid #ccc;
-    padding-bottom: 5px;
+    margin-bottom: 10px;
+    padding-bottom: 7px;
 }
 
 .tracked-title {
-    font-weight: bold;
 }
 
 .tracked-meta {
-    font-size: 0.9em;
+    font-size: 13px;
     color: #555;
+    margin-top: 5px;
 }
 
 .tracked-meta a {
@@ -23,5 +27,14 @@
 }
 
 .tracked-meta a:hover {
+    text-decoration: underline;
+}
+
+.startTrackingBtn {
+    color: #007bff;
+    cursor: pointer;
+}
+
+.startTrackingBtn:hover {
     text-decoration: underline;
 }
