@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Time Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in {
+            animation: fadeIn 0.8s ease-out forwards;
+        }
+        .hover-lift {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .hover-lift:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans antialiased">
+<!-- Hero Section -->
+<header class="bg-gradient-to-r from-blue-600 to-indigo-700 text-white py-16">
+    <div class="container mx-auto px-4 text-center">
+        <h1 class="text-5xl md:text-6xl font-extrabold mb-4 fade-in">GitHub Time Tracker</h1>
+        <p class="text-xl md:text-2xl mb-8 fade-in" style="animation-delay: 0.2s;">
+            Seamlessly track time on GitHub Issues without leaving your workflow
+        </p>
+        <a href="https://github.com" class="inline-block bg-white text-blue-600 font-semibold py-3 px-8 rounded-full hover:bg-blue-100 transition hover-lift fade-in" style="animation-delay: 0.4s;">
+            Install Now
+        </a>
+    </div>
+</header>
+
+<!-- Main Content -->
+<main class="container mx-auto px-4 py-16">
+    <!-- About Section -->
+    <section class="mb-16 text-center">
+        <h2 class="text-3xl font-bold text-gray-800 mb-6 fade-in">🚀 About GitHub Time Tracker</h2>
+        <p class="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed fade-in" style="animation-delay: 0.2s;">
+            GitHub Time Tracker is a lightweight browser extension that integrates time tracking directly into your GitHub workflow.
+            With a sleek <strong>Start/Stop Timer</strong> button on every Issue page, you can effortlessly measure task time — all within GitHub.
+        </p>
+    </section>
+
+    <!-- Features Section -->
+    <section class="mb-16">
+        <h2 class="text-3xl font-bold text-gray-800 text-center mb-10 fade-in">🚀 Key Features</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-white rounded-xl p-6 hover-lift fade-in">
+                <h3 class="text-xl font-semibold text-gray-800 mb-3">🔘 Start/Stop Timer</h3>
+                <ul class="text-gray-600 list-disc list-inside">
+                    <li>Custom timer button on each Issue.</li>
+                    <li>One-click start and stop.</li>
+                    <li>Real-time live counter.</li>
+                </ul>
+            </div>
+            <div class="bg-white rounded-xl p-6 hover-lift fade-in" style="animation-delay: 0.2s;">
+                <h3 class="text-xl font-semibold text-gray-800 mb-3">📋 Time History & Search</h3>
+                <ul class="text-gray-600 list-disc list-inside">
+                    <li>View time history in the popup.</li>
+                    <li>Sort issues by date.</li>
+                    <li>Search by title or URL.</li>
+                </ul>
+            </div>
+            <div class="bg-white rounded-xl p-6 hover-lift fade-in" style="animation-delay: 0.4s;">
+                <h3 class="text-xl font-semibold text-gray-800 mb-3">🔁 Seamless Task Switching</h3>
+                <ul class="text-gray-600 list-disc list-inside">
+                    <li>Auto-stops previous timer.</li>
+                    <li>Prevents overlaps, saves progress.</li>
+                </ul>
+            </div>
+            <div class="bg-white rounded-xl p-6 hover-lift fade-in" style="animation-delay: 0.6s;">
+                <h3 class="text-xl font-semibold text-gray-800 mb-3">🔐 GitHub Token Integration</h3>
+                <ul class="text-gray-600 list-disc list-inside">
+                    <li>Optional token for commenting.</li>
+                    <li>Posts time to issues.</li>
+                </ul>
+            </div>
+            <div class="bg-white rounded-xl p-6 hover-lift fade-in" style="animation-delay: 0.8s;">
+                <h3 class="text-xl font-semibold text-gray-800 mb-3">🧠 Smart Persistence</h3>
+                <ul class="text-gray-600 list-disc list-inside">
+                    <li>Local storage via Chrome API.</li>
+                    <li>Persists across restarts.</li>
+                    <li>Saves progress on crash.</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Why Choose Section -->
+    <section class="mb-16 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-8">
+        <h2 class="text-3xl font-bold text-gray-800 text-center mb-6 fade-in">🧩 Why Choose GitHub Time Tracker?</h2>
+        <ul class="text-gray-600 max-w-3xl mx-auto space-y-3 fade-in" style="animation-delay: 0.2s;">
+            <li><strong>Native GitHub Integration</strong>: Works within GitHub, no context switching.</li>
+            <li><strong>No External Dependencies</strong>: No accounts or third-party APIs.</li>
+            <li><strong>Offline Capability</strong>: Fully functional offline, local storage.</li>
+            <li><strong>Privacy-Conscious</strong>: No analytics or data sharing.</li>
+            <li><strong>Lightweight & Instant</strong>: Install and use immediately.</li>
+        </ul>
+    </section>
+
+    <!-- Who Is This For Section -->
+    <section class="mb-16 text-center">
+        <h2 class="text-3xl font-bold text-gray-800 mb-6 fade-in">📦 Who Is This For?</h2>
+        <p class="text-lg text-gray-600 max-w-3xl mx-auto mb-4 fade-in" style="animation-delay: 0.2s;">
+            Whether you're a solo developer, freelancer, or part of a team, GitHub Time Tracker helps you:
+        </p>
+        <ul class="text-gray-600 max-w-3xl mx-auto list-disc list-inside fade-in" style="animation-delay: 0.4s;">
+            <li>Stay accountable for your time.</li>
+            <li>Understand time distribution across tasks.</li>
+            <li>Improve project estimation and planning.</li>
+        </ul>
+        <p class="text-lg text-gray-600 max-w-3xl mx-auto mt-4 fade-in" style="animation-delay: 0.6s;">
+            All without interrupting your workflow.
+        </p>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="text-center mb-16">
+        <h2 class="text-3xl font-bold text-gray-800 mb-6 fade-in">Get Started</h2>
+        <p class="text-lg text-gray-600 max-w-3xl mx-auto mb-8 fade-in" style="animation-delay: 0.2s;">
+            Start tracking your time more effectively today — directly from the tools you already use! Install GitHub Time Tracker
+            and take control of your GitHub workflow.
+        </p>
+        <a href="https://github.com" class="inline-block bg-blue-600 text-white font-semibold py-3 px-8 rounded-full hover:bg-blue-700 transition hover-lift fade-in" style="animation-delay: 0.4s;">
+            Install Now
+        </a>
+    </section>
+</main>
+
+<!-- Footer -->
+<footer class="bg-gray-900 text-white py-8">
+    <div class="container mx-auto px-4 text-center">
+        <p class="text-sm">© 2025 GitHub Time Tracker. All rights reserved.</p>
+        <p class="text-sm mt-2">
+            <a href="#" class="hover:text-blue-400 transition">Privacy Policy</a> |
+            <a href="https://github.com" class="hover:text-blue-400 transition">GitHub</a>
+        </p>
+    </div>
+</footer>
+</body>
+</html>
