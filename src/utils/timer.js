@@ -84,10 +84,10 @@ export class TimerService {
     }
 
     /**
-     * Останавливает таймер для указанного URL задачи.
-     * @param {string} issueUrl - URL задачи.
-     * @param {HTMLButtonElement | null} buttonElement - Кнопка, связанная с таймером (необязательно).
-     * @returns {Promise<{ issueUrl: string; totalTime: number; isRunning: boolean }>} Объект с информацией о задаче и статусе таймера.
+     * Останавливает таймер для указанного URL задачи
+     * @param {string} issueUrl - URL задачи
+     * @param {HTMLButtonElement | null} buttonElement - Кнопка, связанная с таймером (необязательно)
+     * @returns {Promise<{ issueUrl: string; totalTime: number; isRunning: boolean }>} Объект с информацией о задаче и статусе таймера
      */
     static async stopTimer(issueUrl, buttonElement = null) {
         try {
@@ -149,8 +149,8 @@ export class TimerService {
     }
 
     /**
-     * Получает заголовок задачи с текущей страницы.
-     * @returns {string | null} Заголовок задачи или null, если не найден.
+     * Получает заголовок задачи с текущей страницы
+     * @returns {string | null} Заголовок задачи или null, если не найден
      */
     static getIssueTitle() {
         return (
@@ -160,9 +160,9 @@ export class TimerService {
     }
 
     /**
-     * Сбрасывает состояние кнопки таймера.
-     * @param {HTMLButtonElement | null} buttonElement - Кнопка, состояние которой нужно сбросить.
-     * @param {number} totalTime - Общее время, которое нужно отобразить на кнопке.
+     * Сбрасывает состояние кнопки таймера
+     * @param {HTMLButtonElement | null} buttonElement - Кнопка, состояние которой нужно сбросить
+     * @param {number} totalTime - Общее время, которое нужно отобразить на кнопке
      */
     static resetButtonState(buttonElement, totalTime = 0) {
         if (buttonElement?.dataset.intervalId) {
