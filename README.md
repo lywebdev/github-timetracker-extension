@@ -44,3 +44,7 @@ All without interrupting your workflow.
 
 ## Get Started
 Start tracking your time more effectively today — directly from the tools you already use! Install GitHub Time Tracker and take control of your GitHub workflow.
+
+## 🌐 Links
+- [Official Website](https://lywebdev.github.io/github-timetracker-extension/)
+- [Privacy Policy](https://lywebdev.github.io/github-timetracker-extension/privacy-policy)
