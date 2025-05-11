@@ -3,6 +3,7 @@ import { GitHubService } from './github.js';
 import { StorageService } from './storage.js';
 import { GitHubStorageService } from './github-storage.js';
 import { STORAGE_KEYS, TIME_UPDATE_INTERVAL } from './constants.js';
+import {IssueStorageService} from "./issue-storage.js";
 
 export class TimerService {
     static async getTotalTimeForIssue(issueUrl) {
@@ -13,17 +14,16 @@ export class TimerService {
     }
 
     static async startTimer(issueUrl, btn = null) {
-        const [currentActiveIssue, startTime, activeIssueTitle] = await Promise.all([
+        const [currentActiveIssue, startTime, issue] = await Promise.all([
             StorageService.get(STORAGE_KEYS.ACTIVE_ISSUE),
             StorageService.get(STORAGE_KEYS.START_TIME),
-            StorageService.get(STORAGE_KEYS.ACTIVE_ISSUE_TITLE),
+            IssueStorageService.getByUrl(issueUrl),
         ]);
-
 
         if (currentActiveIssue && startTime && currentActiveIssue !== issueUrl) {
             console.log(`Stopping timer for previous issue: ${currentActiveIssue}`);
             // вот здесь передавать title предыдущей задачи
-            await this.stopTimer(currentActiveIssue, btn, activeIssueTitle);
+            await this.stopTimer(currentActiveIssue, btn);
         }
 
         let issueInfo;
@@ -48,7 +48,10 @@ export class TimerService {
 
         await StorageService.set(STORAGE_KEYS.ACTIVE_ISSUE, issueUrl);
         await StorageService.set(STORAGE_KEYS.START_TIME, new Date().toISOString());
-        await StorageService.set(STORAGE_KEYS.ACTIVE_ISSUE_TITLE, title);
+
+        if (!issue) {
+            await IssueStorageService.add({url: issueUrl, title: title});
+        }
 
         const totalTime = await this.getTotalTimeForIssue(issueUrl);
         let intervalId = null;
@@ -77,11 +80,12 @@ export class TimerService {
         };
     }
 
-    static async stopTimer(issueUrl, btn = null, issueFullTitle = null) {
-        const [startTime, token, trackedTimes] = await Promise.all([
+    static async stopTimer(issueUrl, btn = null) {
+        const [startTime, token, trackedTimes, existableIssue] = await Promise.all([
             StorageService.get(STORAGE_KEYS.START_TIME),
             GitHubStorageService.getGitHubToken(),
             StorageService.get(STORAGE_KEYS.TRACKED_TIMES),
+            IssueStorageService.getByUrl(issueUrl),
         ]);
 
         if (!startTime || isNaN(new Date(startTime).getTime())) {
@@ -97,6 +101,9 @@ export class TimerService {
             return { issueUrl, isRunning: false };
         }
 
+        console.log('existableIssue', existableIssue);
+
+        const taskTitle = existableIssue.title;
         const timeSpent = (Date.now() - new Date(startTime).getTime()) / 1000;
 
         let issueInfo;
@@ -116,8 +123,8 @@ export class TimerService {
         }
 
         const { owner, repo, issueNumber } = issueInfo;
-        const issueTitle = this.getIssueTitle() || 'Untitled';
-        const title = issueFullTitle ? issueFullTitle : `(${owner}) ${repo} | ${issueTitle} | #${issueNumber}`;
+        // const issueTitle = this.getIssueTitle() || 'Untitled';
+        // const title = issueFullTitle ? issueFullTitle : `(${owner}) ${repo} | ${issueTitle} | #${issueNumber}`;
 
         if (token) {
             try {
@@ -130,7 +137,7 @@ export class TimerService {
         const tracked = trackedTimes || [];
         tracked.push({
             issueUrl,
-            title,
+            title: taskTitle,
             seconds: timeSpent,
             date: new Date().toISOString().slice(0, 10),
         });

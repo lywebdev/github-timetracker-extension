@@ -4,7 +4,7 @@ export const STORAGE_KEYS = {
     ACTIVE_ISSUE: 'activeIssue',
     START_TIME: 'startTime',
     TRACKED_TIMES: 'trackedTimes',
-    ACTIVE_ISSUE_TITLE: 'activeIssueTitle',
+    ISSUES: 'issues',
 };
 export const TIME_UPDATE_INTERVAL = 1000;
 export const COMMENT_TEMPLATE = (timeString) => `⏱️ Tracked time: **${timeString}** via GitHub Time Tracker extension.`;
