@@ -3,168 +3,175 @@ import { GitHubService } from './github.js';
 import { StorageService } from './storage.js';
 import { GitHubStorageService } from './github-storage.js';
 import { STORAGE_KEYS, TIME_UPDATE_INTERVAL } from './constants.js';
-import {IssueStorageService} from "./issue-storage.js";
+import { IssueStorageService } from "./issue-storage.js";
 
 export class TimerService {
+    /**
+     * Calculates the total time tracked for a given issue URL
+     * @param {string} issueUrl - The URL of the issue
+     * @returns {Promise<number>} The total time in seconds
+     */
     static async getTotalTimeForIssue(issueUrl) {
-        const trackedTimes = await StorageService.get(STORAGE_KEYS.TRACKED_TIMES) || [];
+        const trackedTimes = (await StorageService.get(STORAGE_KEYS.TRACKED_TIMES)) || [];
         return trackedTimes
-            .filter((entry) => entry.issueUrl === issueUrl)
+            .filter(entry => entry.issueUrl === issueUrl)
             .reduce((total, entry) => total + (entry.seconds || 0), 0);
     }
 
-    static async startTimer(issueUrl, btn = null) {
-        const [currentActiveIssue, startTime, issue] = await Promise.all([
-            StorageService.get(STORAGE_KEYS.ACTIVE_ISSUE),
-            StorageService.get(STORAGE_KEYS.START_TIME),
-            IssueStorageService.getByUrl(issueUrl),
-        ]);
-
-        if (currentActiveIssue && startTime && currentActiveIssue !== issueUrl) {
-            console.log(`Stopping timer for previous issue: ${currentActiveIssue}`);
-            // вот здесь передавать title предыдущей задачи
-            await this.stopTimer(currentActiveIssue, btn);
-        }
-
-        let issueInfo;
+    /**
+     * Starts the timer for a given issue URL
+     * @param {string} issueUrl - The URL of the issue
+     * @param {HTMLButtonElement | null} buttonElement - The button element associated with the timer (optional)
+     * @returns {Promise<{ issueUrl: string; totalTime: number; intervalId: number | null; isRunning: boolean; }>} An object containing issue details and timer status
+     */
+    static async startTimer(issueUrl, buttonElement = null) {
         try {
-            issueInfo = GitHubService.parseIssueUrl(issueUrl);
+            const [activeIssueUrl, startTime, issue] = await Promise.all([
+                StorageService.get(STORAGE_KEYS.ACTIVE_ISSUE),
+                StorageService.get(STORAGE_KEYS.START_TIME),
+                IssueStorageService.getByUrl(issueUrl),
+            ]);
+
+            if (activeIssueUrl && startTime && activeIssueUrl !== issueUrl) {
+                console.log(`Останавливаем таймер для предыдущей задачи: ${activeIssueUrl}`);
+                await this.stopTimer(activeIssueUrl, buttonElement);
+            }
+
+            const issueInfo = GitHubService.parseIssueUrl(issueUrl);
+            const { owner, repo, issueNumber } = issueInfo;
+            const issueTitle = this.getIssueTitle() || 'Untitled';
+            const fullIssueTitle = `(${owner}) ${repo} | ${issueTitle} | #${issueNumber}`;
+
+            await Promise.all([
+                StorageService.set(STORAGE_KEYS.ACTIVE_ISSUE, issueUrl),
+                StorageService.set(STORAGE_KEYS.START_TIME, new Date().toISOString()),
+            ]);
+
+            if (!issue) {
+                await IssueStorageService.add({ url: issueUrl, title: fullIssueTitle });
+            }
+
+            const totalTime = await this.getTotalTimeForIssue(issueUrl);
+            let intervalId = null;
+
+            if (buttonElement) {
+                buttonElement.textContent = `${TimeService.formatTime(0, totalTime)} ⏸ Stop`;
+                intervalId = window.setInterval(async () => {
+                    const startTime = await StorageService.get(STORAGE_KEYS.START_TIME);
+                    if (!startTime || isNaN(new Date(startTime).getTime())) {
+                        clearInterval(intervalId);
+                        buttonElement.textContent = `${TimeService.formatTime(0, totalTime)} Start Timer`;
+                        return;
+                    }
+                    buttonElement.textContent = `${TimeService.timeStringSince(startTime, totalTime)} ⏸ Stop`;
+                }, TIME_UPDATE_INTERVAL);
+                buttonElement.dataset.intervalId = intervalId.toString();
+            }
+
+            return { issueUrl, totalTime, intervalId, isRunning: true };
         } catch (error) {
-            console.error('Failed to parse issue URL:', error);
-            if (btn && btn.dataset.intervalId) {
-                clearInterval(btn.dataset.intervalId);
-                btn.textContent = 'Start Timer';
+            console.error('Не удалось запустить таймер:', error);
+            if (buttonElement?.dataset.intervalId) {
+                clearInterval(parseInt(buttonElement.dataset.intervalId, 10));
+                buttonElement.textContent = 'Start Timer';
             }
             await StorageService.removeMultiple([
                 STORAGE_KEYS.ACTIVE_ISSUE,
                 STORAGE_KEYS.START_TIME,
             ]);
-            return { issueUrl, isRunning: false };
+            return { issueUrl, totalTime: 0, intervalId: null, isRunning: false };
         }
+    }
 
-        const { owner, repo, issueNumber } = issueInfo;
-        const issueTitle = this.getIssueTitle() || 'Untitled';
-        const title = `(${owner}) ${repo} | ${issueTitle} | #${issueNumber}`;
+    /**
+     * Stops the timer for a given issue URL.
+     * @param {string} issueUrl - The URL of the issue.
+     * @param {HTMLButtonElement | null} buttonElement - The button element associated with the timer (optional).
+     * @returns {Promise<{ issueUrl: string; totalTime: number; isRunning: boolean }>} An object containing issue details and timer status.
+     */
+    static async stopTimer(issueUrl, buttonElement = null) {
+        try {
+            const [startTime, githubToken, trackedTimes, existingIssue] = await Promise.all([
+                StorageService.get(STORAGE_KEYS.START_TIME),
+                GitHubStorageService.getGitHubToken(),
+                StorageService.get(STORAGE_KEYS.TRACKED_TIMES),
+                IssueStorageService.getByUrl(issueUrl),
+            ]);
 
-        await StorageService.set(STORAGE_KEYS.ACTIVE_ISSUE, issueUrl);
-        await StorageService.set(STORAGE_KEYS.START_TIME, new Date().toISOString());
+            if (!startTime || isNaN(new Date(startTime).getTime())) {
+                console.error('Некорректное startTime:', startTime);
+                this.resetButtonState(buttonElement);
+                await StorageService.removeMultiple([
+                    STORAGE_KEYS.ACTIVE_ISSUE,
+                    STORAGE_KEYS.START_TIME,
+                ]);
+                return { issueUrl, totalTime: 0, isRunning: false };
+            }
 
-        if (!issue) {
-            await IssueStorageService.add({url: issueUrl, title: title});
-        }
+            const taskTitle = existingIssue?.title || 'Untitled';
+            const timeSpentSeconds = Math.floor((Date.now() - new Date(startTime).getTime()) / 1000);
 
-        const totalTime = await this.getTotalTimeForIssue(issueUrl);
-        let intervalId = null;
+            const issueInfo = GitHubService.parseIssueUrl(issueUrl);
+            const { owner, repo, issueNumber } = issueInfo;
 
-        if (btn) {
-            // Логика для DOM-элемента (как в injectTimerButton.js)
-            btn.textContent = `${TimeService.formatTime(0, totalTime)} ⏸ Stop`;
-            intervalId = setInterval(async () => {
-                const startTime = await StorageService.get(STORAGE_KEYS.START_TIME);
-                if (!startTime || isNaN(new Date(startTime).getTime())) {
-                    clearInterval(intervalId);
-                    btn.textContent = `${TimeService.formatTime(0, totalTime)} Start Timer`;
-                    return;
+            if (githubToken) {
+                try {
+                    await GitHubService.postComment({ owner, repo, issueNumber, seconds: timeSpentSeconds });
+                } catch (error) {
+                    console.error('Не удалось отправить комментарий:', error);
                 }
-                btn.textContent = `${TimeService.timeStringSince(startTime, totalTime)} ⏸ Stop`;
-            }, TIME_UPDATE_INTERVAL);
-            btn.dataset.intervalId = intervalId;
-        }
-
-        // Возвращаем данные для UI в popup
-        return {
-            issueUrl,
-            totalTime,
-            intervalId,
-            isRunning: true
-        };
-    }
-
-    static async stopTimer(issueUrl, btn = null) {
-        const [startTime, token, trackedTimes, existableIssue] = await Promise.all([
-            StorageService.get(STORAGE_KEYS.START_TIME),
-            GitHubStorageService.getGitHubToken(),
-            StorageService.get(STORAGE_KEYS.TRACKED_TIMES),
-            IssueStorageService.getByUrl(issueUrl),
-        ]);
-
-        if (!startTime || isNaN(new Date(startTime).getTime())) {
-            console.error('Invalid startTime:', startTime);
-            if (btn && btn.dataset.intervalId) {
-                clearInterval(btn.dataset.intervalId);
-                btn.textContent = 'Start Timer';
             }
-            await StorageService.removeMultiple([
-                STORAGE_KEYS.ACTIVE_ISSUE,
-                STORAGE_KEYS.START_TIME,
+
+            const updatedTrackedTimes = [...(trackedTimes || []), {
+                issueUrl,
+                title: taskTitle,
+                seconds: timeSpentSeconds,
+                date: new Date().toISOString().slice(0, 10),
+            }];
+
+            await Promise.all([
+                StorageService.set(STORAGE_KEYS.TRACKED_TIMES, updatedTrackedTimes),
+                StorageService.removeMultiple([
+                    STORAGE_KEYS.ACTIVE_ISSUE,
+                    STORAGE_KEYS.START_TIME,
+                ]),
             ]);
-            return { issueUrl, isRunning: false };
-        }
 
-        console.log('existableIssue', existableIssue);
+            const totalTime = await this.getTotalTimeForIssue(issueUrl);
+            this.resetButtonState(buttonElement, totalTime);
 
-        const taskTitle = existableIssue.title;
-        const timeSpent = (Date.now() - new Date(startTime).getTime()) / 1000;
-
-        let issueInfo;
-        try {
-            issueInfo = GitHubService.parseIssueUrl(issueUrl);
+            return { issueUrl, totalTime, isRunning: false };
         } catch (error) {
-            console.error('Failed to parse issue URL:', error);
-            if (btn && btn.dataset.intervalId) {
-                clearInterval(btn.dataset.intervalId);
-                btn.textContent = 'Start Timer';
-            }
-            await StorageService.removeMultiple([
-                STORAGE_KEYS.ACTIVE_ISSUE,
-                STORAGE_KEYS.START_TIME,
-            ]);
-            return { issueUrl, isRunning: false };
+            console.error('Не удалось остановить таймер:', error);
+            this.resetButtonState(buttonElement);
+            return { issueUrl, totalTime: 0, isRunning: false };
         }
-
-        const { owner, repo, issueNumber } = issueInfo;
-        // const issueTitle = this.getIssueTitle() || 'Untitled';
-        // const title = issueFullTitle ? issueFullTitle : `(${owner}) ${repo} | ${issueTitle} | #${issueNumber}`;
-
-        if (token) {
-            try {
-                await GitHubService.postComment({ owner, repo, issueNumber, seconds: timeSpent });
-            } catch (error) {
-                console.error('Failed to post comment:', error);
-            }
-        }
-
-        const tracked = trackedTimes || [];
-        tracked.push({
-            issueUrl,
-            title: taskTitle,
-            seconds: timeSpent,
-            date: new Date().toISOString().slice(0, 10),
-        });
-
-        await StorageService.set(STORAGE_KEYS.TRACKED_TIMES, tracked);
-        await StorageService.removeMultiple([
-            STORAGE_KEYS.ACTIVE_ISSUE,
-            STORAGE_KEYS.START_TIME,
-        ]);
-
-        const totalTime = await this.getTotalTimeForIssue(issueUrl);
-        if (btn && btn.dataset.intervalId) {
-            clearInterval(btn.dataset.intervalId);
-            btn.textContent = `${TimeService.formatTime(0, totalTime)} Start Timer`;
-        }
-
-        return {
-            issueUrl,
-            totalTime,
-            isRunning: false
-        };
     }
 
+    /**
+     * Gets the issue title from the current page.
+     * @returns {string | null} The issue title or null if not found.
+     */
     static getIssueTitle() {
         return (
             document.querySelector('span.js-issue-title')?.textContent?.trim() ||
             document.querySelector("[data-testid='issue-title']")?.textContent?.trim()
-        );
+        ) || null;
+    }
+
+    /**
+     * Resets the timer button's state.
+     * @param {HTMLButtonElement | null} buttonElement - The button element to reset.
+     * @param {number} totalTime - The total time to display on the button.
+     */
+    static resetButtonState(buttonElement, totalTime = 0) {
+        if (buttonElement?.dataset.intervalId) {
+            clearInterval(parseInt(buttonElement.dataset.intervalId, 10));
+            delete buttonElement.dataset.intervalId;
+        }
+        if (buttonElement) {
+            buttonElement.textContent = `${TimeService.formatTime(0, totalTime)} Start Timer`;
+        }
     }
 }
+
