@@ -13,18 +13,42 @@ export class TimerService {
     }
 
     static async startTimer(issueUrl, btn = null) {
-        const [currentActiveIssue, startTime] = await Promise.all([
+        const [currentActiveIssue, startTime, activeIssueTitle] = await Promise.all([
             StorageService.get(STORAGE_KEYS.ACTIVE_ISSUE),
             StorageService.get(STORAGE_KEYS.START_TIME),
+            StorageService.get(STORAGE_KEYS.ACTIVE_ISSUE_TITLE),
         ]);
+
 
         if (currentActiveIssue && startTime && currentActiveIssue !== issueUrl) {
             console.log(`Stopping timer for previous issue: ${currentActiveIssue}`);
-            await this.stopTimer(currentActiveIssue, btn);
+            // вот здесь передавать title предыдущей задачи
+            await this.stopTimer(currentActiveIssue, btn, activeIssueTitle);
         }
+
+        let issueInfo;
+        try {
+            issueInfo = GitHubService.parseIssueUrl(issueUrl);
+        } catch (error) {
+            console.error('Failed to parse issue URL:', error);
+            if (btn && btn.dataset.intervalId) {
+                clearInterval(btn.dataset.intervalId);
+                btn.textContent = 'Start Timer';
+            }
+            await StorageService.removeMultiple([
+                STORAGE_KEYS.ACTIVE_ISSUE,
+                STORAGE_KEYS.START_TIME,
+            ]);
+            return { issueUrl, isRunning: false };
+        }
+
+        const { owner, repo, issueNumber } = issueInfo;
+        const issueTitle = this.getIssueTitle() || 'Untitled';
+        const title = `(${owner}) ${repo} | ${issueTitle} | #${issueNumber}`;
 
         await StorageService.set(STORAGE_KEYS.ACTIVE_ISSUE, issueUrl);
         await StorageService.set(STORAGE_KEYS.START_TIME, new Date().toISOString());
+        await StorageService.set(STORAGE_KEYS.ACTIVE_ISSUE_TITLE, title);
 
         const totalTime = await this.getTotalTimeForIssue(issueUrl);
         let intervalId = null;
