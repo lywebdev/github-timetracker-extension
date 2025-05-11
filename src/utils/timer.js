@@ -7,9 +7,9 @@ import { IssueStorageService } from "./issue-storage.js";
 
 export class TimerService {
     /**
-     * Calculates the total time tracked for a given issue URL
-     * @param {string} issueUrl - The URL of the issue
-     * @returns {Promise<number>} The total time in seconds
+     * Вычисляет общее затраченное время для указанного URL задачи
+     * @param {string} issueUrl - URL задачи
+     * @returns {Promise<number>} Общее время в секундах
      */
     static async getTotalTimeForIssue(issueUrl) {
         const trackedTimes = (await StorageService.get(STORAGE_KEYS.TRACKED_TIMES)) || [];
@@ -19,10 +19,10 @@ export class TimerService {
     }
 
     /**
-     * Starts the timer for a given issue URL
-     * @param {string} issueUrl - The URL of the issue
-     * @param {HTMLButtonElement | null} buttonElement - The button element associated with the timer (optional)
-     * @returns {Promise<{ issueUrl: string; totalTime: number; intervalId: number | null; isRunning: boolean; }>} An object containing issue details and timer status
+     * Запускает таймер для указанного URL задачи
+     * @param {string} issueUrl - URL задачи
+     * @param {HTMLButtonElement | null} buttonElement - Кнопка, связанная с таймером (необязательно)
+     * @returns {Promise<{ issueUrl: string; totalTime: number; intervalId: number | null; isRunning: boolean; }>} Объект с информацией о задаче и статусе таймера
      */
     static async startTimer(issueUrl, buttonElement = null) {
         try {
@@ -84,10 +84,10 @@ export class TimerService {
     }
 
     /**
-     * Stops the timer for a given issue URL.
-     * @param {string} issueUrl - The URL of the issue.
-     * @param {HTMLButtonElement | null} buttonElement - The button element associated with the timer (optional).
-     * @returns {Promise<{ issueUrl: string; totalTime: number; isRunning: boolean }>} An object containing issue details and timer status.
+     * Останавливает таймер для указанного URL задачи.
+     * @param {string} issueUrl - URL задачи.
+     * @param {HTMLButtonElement | null} buttonElement - Кнопка, связанная с таймером (необязательно).
+     * @returns {Promise<{ issueUrl: string; totalTime: number; isRunning: boolean }>} Объект с информацией о задаче и статусе таймера.
      */
     static async stopTimer(issueUrl, buttonElement = null) {
         try {
@@ -149,8 +149,8 @@ export class TimerService {
     }
 
     /**
-     * Gets the issue title from the current page.
-     * @returns {string | null} The issue title or null if not found.
+     * Получает заголовок задачи с текущей страницы.
+     * @returns {string | null} Заголовок задачи или null, если не найден.
      */
     static getIssueTitle() {
         return (
@@ -160,9 +160,9 @@ export class TimerService {
     }
 
     /**
-     * Resets the timer button's state.
-     * @param {HTMLButtonElement | null} buttonElement - The button element to reset.
-     * @param {number} totalTime - The total time to display on the button.
+     * Сбрасывает состояние кнопки таймера.
+     * @param {HTMLButtonElement | null} buttonElement - Кнопка, состояние которой нужно сбросить.
+     * @param {number} totalTime - Общее время, которое нужно отобразить на кнопке.
      */
     static resetButtonState(buttonElement, totalTime = 0) {
         if (buttonElement?.dataset.intervalId) {

@@ -2,6 +2,7 @@ import { StorageService } from '../utils/storage.js';
 import { GitHubService } from '../utils/github.js';
 import { GitHubStorageService } from '../utils/github-storage.js';
 import { STORAGE_KEYS } from '../utils/constants.js';
+import {IssueStorageService} from "../utils/issue-storage.js";
 
 async function handleTimerStop(reason) {
     const { activeIssue, startTime, trackedTimes } = await StorageService.getMultiple([
@@ -12,6 +13,7 @@ async function handleTimerStop(reason) {
 
     if (activeIssue && startTime) {
         const timeSpent = (Date.now() - new Date(startTime).getTime()) / 1000;
+        const issue = await IssueStorageService.getByUrl(activeIssue);
         console.log(`Stopped due to ${reason}. Tracked ${timeSpent} seconds on ${activeIssue}`);
 
         let issueInfo;
@@ -23,12 +25,12 @@ async function handleTimerStop(reason) {
         }
 
         const { owner, repo, issueNumber } = issueInfo;
-        const title = `(${owner}) ${repo} | Issue #${issueNumber}`;
+        const taskTitle = issue?.title || 'Untitled';
 
         const tracked = trackedTimes || [];
         tracked.push({
             issueUrl: activeIssue,
-            title,
+            title: taskTitle,
             seconds: timeSpent,
             date: new Date().toISOString().slice(0, 10),
         });
