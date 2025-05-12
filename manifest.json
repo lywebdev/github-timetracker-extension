@@ -3,14 +3,15 @@
   "name": "GitHub Time Tracker",
   "version": "1.0",
   "description": "Track time spent on GitHub issues",
-  "permissions": ["storage", "activeTab"],
+  "permissions": ["storage", "activeTab", "runtime", "tabs"],
   "background": {
     "service_worker": "background.js"
   },
   "content_scripts": [
     {
-      "matches": ["https://github.com/*/*/issues/*"],
-      "js": ["content.js"]
+      "matches": ["*://github.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
     }
   ],
   "action": {

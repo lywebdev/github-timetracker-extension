@@ -4,13 +4,14 @@ import { TrackedList } from './TrackedList.jsx';
 import { TimerService } from '../../../utils/timer.js';
 import { StorageService } from '../../../utils/storage.js';
 import { STORAGE_KEYS } from '../../../utils/constants.js';
-import {SearchBar} from "../../../components/SearchBar/SearchBar.jsx";
+import { SearchBar } from '../../../components/SearchBar/SearchBar.jsx';
+import './SummaryView.css';
 
-export function SummaryView({tracked}) {
+export function SummaryView({ tracked }) {
     const [activeIssue, setActiveIssue] = useState(null);
     const [startTime, setStartTime] = useState(null);
     const [currentTimes, setCurrentTimes] = useState({});
-    const [searchTerm, setSearchTerm] = useState(''); // Добавляем состояние для поиска
+    const [searchTerm, setSearchTerm] = useState('');
 
     // Загружаем данные об активной задаче и синхронизируем
     useEffect(() => {
@@ -22,7 +23,6 @@ export function SummaryView({tracked}) {
             setActiveIssue(active);
             setStartTime(start);
 
-            // Немедленное обновление времени для активной задачи
             if (active && start && !isNaN(new Date(start).getTime())) {
                 const totalTime = await TimerService.getTotalTimeForIssue(active);
                 const elapsed = (Date.now() - new Date(start).getTime()) / 1000;
@@ -34,7 +34,6 @@ export function SummaryView({tracked}) {
         };
         loadActiveData();
 
-        // Слушаем изменения в storage
         const listener = (changes) => {
             if (changes[STORAGE_KEYS.ACTIVE_ISSUE]) {
                 setActiveIssue(changes[STORAGE_KEYS.ACTIVE_ISSUE].newValue);
@@ -69,7 +68,7 @@ export function SummaryView({tracked}) {
                     ...prev,
                     [activeIssue]: TimeService.formatTime(elapsed + totalTime),
                 }));
-            }, 1000); // Обновляем каждую секунду
+            }, 1000);
 
             return intervalId;
         };
@@ -83,6 +82,33 @@ export function SummaryView({tracked}) {
             if (intervalId) clearInterval(intervalId);
         };
     }, [activeIssue, startTime]);
+
+    // Вычисляем общее время, затреканное за сегодня
+    const todayTotalTime = useMemo(() => {
+        console.log('Calculating todayTotalTime, tracked:', tracked);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const tomorrow = new Date(today);
+        tomorrow.setDate(today.getDate() + 1);
+
+        const totalSeconds = tracked.reduce((sum, entry) => {
+            console.log('Processing entry:', entry); // Отладка
+            // Используем поле date вместо timestamp
+            const entryDate = new Date(entry.date);
+            if (isNaN(entryDate.getTime())) {
+                console.warn('Invalid date for entry:', entry);
+                return sum;
+            }
+            if (entryDate >= today && entryDate < tomorrow) {
+                console.log('Entry included:', entry.seconds, 'seconds');
+                return sum + (entry.seconds || 0);
+            }
+            return sum;
+        }, 0);
+
+        console.log('Total seconds today:', totalSeconds);
+        return TimeService.formatTime(totalSeconds);
+    }, [tracked]);
 
     const handleSearch = (term) => {
         setSearchTerm(term);
@@ -114,6 +140,9 @@ export function SummaryView({tracked}) {
 
     return (
         <>
+            <div className="today-total-time">
+                Total time tracked today: {todayTotalTime}
+            </div>
             <SearchBar onSearch={handleSearch} />
             <TrackedList entries={entries} showTimerControls={true} />
         </>
