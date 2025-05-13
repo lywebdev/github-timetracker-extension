@@ -9,7 +9,7 @@ import { SearchBar } from '../../../components/SearchBar/SearchBar.jsx';
 export function CalendarView({ tracked }) {
   const getLocalDate = () => {
     const date = new Date();
-    date.setHours(0, 0, 0, 0); // Обнуляем время для локальной даты
+    date.setHours(0, 0, 0, 0); // Reset time for local date
     return date;
   };
 
@@ -20,7 +20,7 @@ export function CalendarView({ tracked }) {
   const [currentTimes, setCurrentTimes] = useState({});
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Синхронизация активной задачи и времени начала
+  // Sync active issue and start time
   useEffect(() => {
     const loadActiveData = async () => {
       const [active, start] = await Promise.all([
@@ -56,7 +56,7 @@ export function CalendarView({ tracked }) {
     };
   }, []);
 
-  // Обновление таймера для активной задачи
+  // Update timer for active issue
   useEffect(() => {
     if (!activeIssue || !startTime || isNaN(new Date(startTime).getTime())) {
       setCurrentTimes((prev) => {
@@ -90,7 +90,7 @@ export function CalendarView({ tracked }) {
     };
   }, [activeIssue, startTime]);
 
-  // Логика календаря
+  // Calendar logic
   const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
   firstDayOfMonth.setHours(0, 0, 0, 0);
   const lastDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
@@ -100,22 +100,22 @@ export function CalendarView({ tracked }) {
   const daysArray = Array.from({ length: daysInMonth }, (_, i) => i + 1);
   const paddingDays = Array(firstDayWeekday).fill(null);
 
-  // Получение уникальных дат с данными
+  // Get unique dates with tracked data
   const trackedDates = useMemo(() => {
     const dates = new Set();
     tracked.forEach(entry => {
       const entryDate = new Date(entry.date);
       if (!isNaN(entryDate.getTime())) {
-        entryDate.setHours(0, 0, 0, 0); // Нормализуем дату
+        entryDate.setHours(0, 0, 0, 0); // Normalize date
         const dateStr = entryDate.toISOString().split('T')[0];
         dates.add(dateStr);
       }
     });
-    console.log('Tracked dates:', Array.from(dates)); // Отладка
+    console.log('Tracked dates:', Array.from(dates)); // Debug
     return Array.from(dates);
   }, [tracked]);
 
-  // Фильтрация записей для выбранной даты
+  // Filter tracked entries for selected date
   const selectedDayTracked = useMemo(() => {
     const startOfSelected = new Date(selectedDate);
     startOfSelected.setHours(0, 0, 0, 0);
@@ -127,17 +127,17 @@ export function CalendarView({ tracked }) {
       entryDate.setHours(0, 0, 0, 0);
       return entryDate >= startOfSelected && entryDate < endOfSelected;
     });
-    console.log('Selected day tracked:', filtered); // Отладка
+    console.log('Selected day tracked:', filtered); // Debug
     return filtered;
   }, [tracked, selectedDate]);
 
-  // Вычисление общего времени для выбранной даты
+  // Calculate total time for selected date
   const selectedDayTotalTime = useMemo(() => {
     const totalSeconds = selectedDayTracked.reduce((sum, entry) => sum + (entry.seconds || 0), 0);
     return TimeService.formatTime(totalSeconds);
   }, [selectedDayTracked]);
 
-  // Фильтрация по поисковому запросу
+  // Filter tracked entries by search term
   const filteredTracked = useMemo(() => {
     return selectedDayTracked.filter(entry =>
       entry.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -145,7 +145,7 @@ export function CalendarView({ tracked }) {
     );
   }, [selectedDayTracked, searchTerm]);
 
-  // Группировка записей по issueUrl
+  // Group entries by issueUrl
   const entries = useMemo(() => {
     const grouped = filteredTracked.reduce((acc, entry) => {
       if (!acc[entry.issueUrl]) {
@@ -185,7 +185,10 @@ export function CalendarView({ tracked }) {
     const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
     date.setHours(0, 0, 0, 0);
     const dateStr = date.toISOString().split('T')[0];
-    return trackedDates.includes(dateStr);
+    const today = getLocalDate();
+    today.setHours(0, 0, 0, 0);
+    const todayStr = today.toISOString().split('T')[0];
+    return trackedDates.includes(dateStr) || dateStr === todayStr;
   };
 
   const isSelectedDay = (day) => {
@@ -204,7 +207,7 @@ export function CalendarView({ tracked }) {
           ← Prev
         </button>
         <span className="text-sm font-bold">
-                    {currentDate.toLocaleString('default', { month: 'long', year: 'numeric' })}
+                    {currentDate.toLocaleString('en-US', { month: 'long', year: 'numeric' })}
                 </span>
         <button
           onClick={nextMonth}
@@ -237,7 +240,7 @@ export function CalendarView({ tracked }) {
         ))}
       </div>
       <div className="mb-2 font-bold">
-        Общее время за {selectedDate.toLocaleDateString('ru-RU')}: {selectedDayTotalTime}
+        Total time for {selectedDate.toLocaleDateString('ru-RU')}: {selectedDayTotalTime}
       </div>
       <SearchBar onSearch={handleSearch} />
       <TrackedList entries={entries} showTimerControls={true} />
