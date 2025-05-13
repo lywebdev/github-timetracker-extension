@@ -1,17 +1,14 @@
 {
   "name": "github-time-tracker",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.2",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "start": "nodemon --watch src --ext js,jsx,html,css,json --exec \"npm run build\"",
+    "watch": "nodemon --watch src --ext js,jsx,html,css,json --exec \"npm run build\"",
     "build:popup": "vite build --config vite.config.popup.js",
     "build:background": "vite build --config vite.config.background.js",
     "build:content": "vite build --config vite.config.content.js",
-    "abuild": "npm run build:popup && npm run build:background && npm run build:content",
-    "watch": "nodemon --watch src --ext js,jsx,html,css,json --exec \"npm run abuild\""
+    "build": "npm run build:popup && npm run build:background && npm run build:content"
   },
   "dependencies": {
     "@preact/preset-vite": "^2.5.0",
