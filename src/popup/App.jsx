@@ -11,6 +11,7 @@ import { STORAGE_KEYS } from '../utils/constants.js';
 import {useStorageListener} from "../hooks/useStorageListener.js";
 import {IssueStorageService} from "../utils/issue-storage.js";
 import './App.css';
+import { CalendarView } from "./Views/TrackedList/CalendarView.jsx";
 
 export function App() {
     const NO_TOKEN_TEXT = 'no token';
@@ -137,8 +138,10 @@ export function App() {
                       <Tabs
                         tabs={[
                             {id: 'summary', label: 'Summary', content: <SummaryView tracked={tracked}/>},
-                            {id: 'history', label: 'History', content: <HistoryView tracked={tracked}/>}
+                            {id: 'history', label: 'History', content: <HistoryView tracked={tracked}/>},
+                            {id: 'calendar', label: 'Calendar', content: <CalendarView tracked={tracked}/>},
                         ]}
+                        defaultActiveId="summary"
                         tabsHeaderRight={<div
                           onClick={handleClearTrackedTimes}
                           className="text-sm cursor-pointer hover:underline"
