@@ -1,50 +1,48 @@
-# GitHub Time Tracker
+# GitHub Time Tracker - Release v1.0.2
 
-GitHub Time Tracker is a lightweight browser extension designed to seamlessly integrate time tracking into your GitHub workflow. It adds a simple and intuitive **Start/Stop Timer** button directly to every GitHub Issue page, making it easy to measure how much time you spend on each task — without leaving GitHub.
+**Release Date: May 14, 2025**
 
-## 🚀 Key Features
+Welcome to GitHub Time Tracker v1.0.2! This release introduces a powerful new calendar view, enhances time tracking with daily filtering, and updates our documentation to reflect the latest features. Designed to make your GitHub workflow even more productive, v1.0.2 brings intuitive tools to visualize and manage your time effortlessly.
 
-### 🔘 Start/Stop Timer Button on Issue Pages
-- Each GitHub Issue features a custom timer button.
-- Start tracking time with a single click, and stop it with another.
-- A live counter updates in real-time, showing exactly how long you've been working on a task.
+## 🚀 What's New in v1.0.2
+- **Calendar View**: A new interface to browse tracked time by day, with clickable dates and daily summaries.
+- **Current Day Accessibility**: The current day (e.g., May 14, 2025) is always active in the calendar, even without prior data.
+- **Localized Calendar**: English calendar (days, months, buttons) with Russian date format (`DD.MM.YYYY`) for total time display.
+- **Daily Filtering in Summary & History**: Summary and History views now show only today's data for focused tracking.
+- **Updated Documentation**: `README.md` and `index.html` now highlight the calendar and outline future plans for refactoring and customization.
 
-### 📋 Popup with Time History & Search
-- Access a detailed view of your tracked time history via the browser popup.
-- View a log of all tracked issues, including total time spent, sorted by date.
-- Search by task title or URL to quickly find specific records for reports or analysis.
+## 📋 Key Features
+### 📅 Calendar View
+- **Visualize Your Time**: Browse tracked tasks by selecting any day in the calendar.
+- **Current Day Active**: Start tracking on the current day (e.g., May 14, 2025) without needing prior data.
+- **Search & Summarize**: Filter tasks within a selected day and view total time spent (e.g., `Total time for 14.05.2025: 08:42:51`).
+- **English Interface**: Days (`Sun`, `Mon`, ...), months (`May 2025`), and buttons (`Prev`, `Next`) in English, with Russian date format for consistency.
 
-### 🔁 Seamless Task Switching
-- Automatically stops the timer for the previous issue when you start tracking a new one.
-- Prevents time overlaps and ensures no progress is lost during task switches.
+### 📊 Focused Summary & History
+- **Today's Data Only**: Summary shows aggregated time for today's tasks, with search by title or URL.
+- **Recent History**: History displays up to 10 recent entries for today, sorted in reverse order.
+- **Consistent Tracking**: Uses local date (`2025-05-14`) for accurate filtering in your timezone (e.g., CEST).
 
-### 🔐 GitHub Token Integration for Commenting
-- Optionally provide a GitHub Classic Personal Access Token to enable automatic commenting.
-- Posts time spent directly to the corresponding GitHub issue, keeping your team informed and maintaining a transparent work record.
+### 🔘 Enhanced Timer Integration
+- **Seamless Tracking**: Start/Stop Timer buttons on GitHub Issues, with live counters in Calendar and Summary views.
+- **Task Switching**: Automatically stops the previous timer when starting a new one, preventing overlaps.
+- **Smart Persistence**: Time logs persist across browser restarts using Chrome’s storage API.
 
-### 🧠 Smart Persistence
-- Stores all data (time logs, current tracking state) locally using Chrome’s storage API.
-- Persists across browser restarts; gracefully stops and saves tracking if the browser closes during an active session.
-- Ensures no time is lost, even in unexpected scenarios.
+### 🔐 GitHub Integration
+- **Optional Commenting**: Use a GitHub Personal Access Token to post time spent directly to issues.
+- **Privacy-First**: All data stored locally, with no analytics or third-party dependencies.
 
-## 🧩 Why Choose GitHub Time Tracker?
-- ✅ **Native GitHub Integration**: Works directly within GitHub, no context switching required.
-- ✅ **No External Dependencies**: No accounts or third-party APIs needed.
-- ✅ **Offline Capability**: Functions fully offline, with all data stored locally.
-- ✅ **Privacy-Conscious**: No analytics, telemetry, or data sharing.
-- ✅ **Lightweight & Instant**: Easy to install and use immediately.
-
-## 📦 Who Is This For?
-Whether you're a solo developer, freelancer, or part of a team, GitHub Time Tracker helps you:
-- Stay accountable for your time.
-- Understand your time distribution across tasks.
-- Improve project estimation and planning.
-
-All without interrupting your workflow.
-
-## Get Started
-Start tracking your time more effectively today — directly from the tools you already use! Install GitHub Time Tracker and take control of your GitHub workflow.
+## 🌟 What's Next?
+We're planning big things for GitHub Time Tracker:
+- **Global Refactoring**: Rewrite the codebase for better performance and maintainability.
+- **Customizable Features**: Add settings for time formats, UI themes, and advanced task filters.
+- **Advanced Analytics**: Introduce exportable reports and insights into your work patterns.
+  Stay tuned for updates that will make time tracking even more tailored to your needs!
 
 ## 🌐 Links
 - [Official Website](https://lywebdev.github.io/github-timetracker-extension/)
 - [Privacy Policy](https://lywebdev.github.io/github-timetracker-extension/privacy-policy)
+- [GitHub Repository](https://github.com/lywebdev/github-timetracker-extension)
+
+---
+© 2025 GitHub Time Tracker. All rights reserved.
