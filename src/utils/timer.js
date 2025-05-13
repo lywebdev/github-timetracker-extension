@@ -84,6 +84,18 @@ export class TimerService {
     }
 
     /**
+     * Форматирует текущую локальную дату в формате YYYY-MM-DD
+     * @returns {string} Дата в формате YYYY-MM-DD
+     */
+    static getLocalDateString() {
+        const date = new Date();
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // Месяцы начинаются с 0
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
+    /**
      * Останавливает таймер для указанного URL задачи
      * @param {string} issueUrl - URL задачи
      * @param {HTMLButtonElement | null} buttonElement - Кнопка, связанная с таймером (необязательно)
@@ -126,7 +138,7 @@ export class TimerService {
                 issueUrl,
                 title: taskTitle,
                 seconds: timeSpentSeconds,
-                date: new Date().toISOString().slice(0, 10),
+                date: this.getLocalDateString(),
             }];
 
             await Promise.all([
@@ -174,4 +186,3 @@ export class TimerService {
         }
     }
 }
-
