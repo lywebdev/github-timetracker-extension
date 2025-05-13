@@ -1,4 +1,3 @@
-// popup/Views/TrackedList/SummaryView.jsx
 import { useMemo, useState, useEffect } from 'preact/hooks';
 import { TimeService } from '../../../utils/time.js';
 import { TrackedList } from './TrackedList.jsx';
@@ -6,7 +5,6 @@ import { TimerService } from '../../../utils/timer.js';
 import { StorageService } from '../../../utils/storage.js';
 import { STORAGE_KEYS } from '../../../utils/constants.js';
 import { SearchBar } from '../../../components/SearchBar/SearchBar.jsx';
-import './SummaryView.css';
 
 export function SummaryView({ tracked }) {
     const [activeIssue, setActiveIssue] = useState(null);
@@ -15,7 +13,6 @@ export function SummaryView({ tracked }) {
     const [searchTerm, setSearchTerm] = useState('');
     const [todayTracked, setTodayTracked] = useState([]);
 
-    // Загружаем данные об активной задаче и синхронизируем
     useEffect(() => {
         const loadActiveData = async () => {
             const [active, start, allTracked] = await Promise.all([
@@ -26,7 +23,6 @@ export function SummaryView({ tracked }) {
             setActiveIssue(active);
             setStartTime(start);
 
-            // Фильтруем записи за сегодня
             const today = new Date();
             today.setHours(0, 0, 0, 0);
             const tomorrow = new Date(today);
@@ -86,7 +82,6 @@ export function SummaryView({ tracked }) {
         };
     }, []);
 
-    // Обновление суммарного времени для активной задачи
     useEffect(() => {
         if (!activeIssue || !startTime || isNaN(new Date(startTime).getTime())) {
             setCurrentTimes((prev) => {
@@ -120,7 +115,6 @@ export function SummaryView({ tracked }) {
         };
     }, [activeIssue, startTime]);
 
-    // Вычисляем общее время, затреканное за сегодня
     const todayTotalTime = useMemo(() => {
         console.log('Calculating todayTotalTime, tracked:', todayTracked);
         const totalSeconds = todayTracked.reduce((sum, entry) => {
@@ -137,8 +131,8 @@ export function SummaryView({ tracked }) {
 
     const filteredTracked = useMemo(() => {
         return tracked.filter(entry =>
-            entry.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            entry.issueUrl.toLowerCase().includes(searchTerm.toLowerCase())
+          entry.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          entry.issueUrl.toLowerCase().includes(searchTerm.toLowerCase())
         );
     }, [tracked, searchTerm]);
 
@@ -153,19 +147,19 @@ export function SummaryView({ tracked }) {
         return Object.values(grouped).map((e) => ({
             ...e,
             displayTime:
-                e.issueUrl === activeIssue && currentTimes[e.issueUrl]
-                    ? currentTimes[e.issueUrl]
-                    : TimeService.formatTime(e.seconds),
+              e.issueUrl === activeIssue && currentTimes[e.issueUrl]
+                ? currentTimes[e.issueUrl]
+                : TimeService.formatTime(e.seconds),
         }));
     }, [filteredTracked, currentTimes, activeIssue]);
 
     return (
-        <>
-            <div className="today-total-time">
-                Total time tracked today: {todayTotalTime}
-            </div>
-            <SearchBar onSearch={handleSearch} />
-            <TrackedList entries={entries} showTimerControls={true} />
-        </>
+      <>
+          <div className="mb-2 font-bold">
+              Total time tracked today: {todayTotalTime}
+          </div>
+          <SearchBar onSearch={handleSearch} />
+          <TrackedList entries={entries} showTimerControls={true} />
+      </>
     );
 }

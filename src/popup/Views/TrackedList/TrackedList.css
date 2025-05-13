@@ -1,41 +1,23 @@
 .tracked-list {
-    padding: 4px 0;
-    font-size: 14px;
-}
-
-.tracked-entry {
+    @apply py-1 text-sm;
 }
 
 .tracked-entry:not(:last-child) {
-    border-bottom: 1px solid #ccc;
-    margin-bottom: 10px;
-    padding-bottom: 7px;
+    @apply border-b border-gray-300 mb-2 pb-2;
 }
 
 .tracked-title {
-    line-height: 145%;
+    @apply leading-relaxed;
 }
 
 .tracked-meta {
-    font-size: 13px;
-    color: #555;
-    margin-top: 5px;
+    @apply text-xs text-gray-600 mt-1;
 }
 
 .tracked-meta a {
-    color: #0969da;
-    text-decoration: none;
-}
-
-.tracked-meta a:hover {
-    text-decoration: underline;
+    @apply text-blue-600 no-underline hover:underline;
 }
 
 .startTrackingBtn {
-    color: #007bff;
-    cursor: pointer;
-}
-
-.startTrackingBtn:hover {
-    text-decoration: underline;
+    @apply text-blue-600 cursor-pointer hover:underline;
 }

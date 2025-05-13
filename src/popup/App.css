@@ -8,27 +8,27 @@
     font-display: swap;
 }
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Inter', sans-serif;
-}
+/** {*/
+/*    margin: 0;*/
+/*    padding: 0;*/
+/*    box-sizing: border-box;*/
+/*    font-family: 'Inter', sans-serif;*/
+/*}*/
 
 
-.clearTrackedTimesBtn {
-    font-size: 13px;
-    cursor: pointer;
-}
+/*.clearTrackedTimesBtn {*/
+/*    font-size: 13px;*/
+/*    cursor: pointer;*/
+/*}*/
 
-.clearTrackedTimesBtn:hover {
-    text-decoration: underline;
-}
+/*.clearTrackedTimesBtn:hover {*/
+/*    text-decoration: underline;*/
+/*}*/
 
-.popup {
-    padding: 15px;
-    box-sizing: border-box;
-    font-family: sans-serif;
-    width: 400px;
-}
+/*.popup {*/
+/*    padding: 15px;*/
+/*    box-sizing: border-box;*/
+/*    font-family: sans-serif;*/
+/*    width: 400px;*/
+/*}*/
 

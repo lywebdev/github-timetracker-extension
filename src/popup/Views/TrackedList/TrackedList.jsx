@@ -1,6 +1,4 @@
-// popup/Views/TrackedList/TrackedList.jsx
 import { useEffect, useState } from 'preact/hooks';
-import './TrackedList.css';
 import { TimerService } from '../../../utils/timer.js';
 import { TimeService } from '../../../utils/time.js';
 import { StorageService } from '../../../utils/storage.js';
@@ -11,7 +9,6 @@ export function TrackedList({ entries, showTimerControls = false }) {
     const [startTime, setStartTime] = useState(null);
     const [currentTimes, setCurrentTimes] = useState({});
 
-    // Загружаем данные об активной задаче и синхронизируем
     useEffect(() => {
         const loadActiveData = async () => {
             const [active, start] = await Promise.all([
@@ -21,7 +18,6 @@ export function TrackedList({ entries, showTimerControls = false }) {
             setActiveIssue(active);
             setStartTime(start);
 
-            // Немедленное обновление времени для активной задачи
             if (active && start && !isNaN(new Date(start).getTime())) {
                 const elapsed = (Date.now() - new Date(start).getTime()) / 1000;
                 setCurrentTimes((prev) => ({
@@ -32,7 +28,6 @@ export function TrackedList({ entries, showTimerControls = false }) {
         };
         loadActiveData();
 
-        // Слушаем изменения в storage
         const listener = (changes) => {
             if (changes[STORAGE_KEYS.ACTIVE_ISSUE]) {
                 setActiveIssue(changes[STORAGE_KEYS.ACTIVE_ISSUE].newValue);
@@ -48,7 +43,6 @@ export function TrackedList({ entries, showTimerControls = false }) {
         };
     }, []);
 
-    // Обновление времени для активной задачи (только текущая сессия)
     useEffect(() => {
         if (!showTimerControls) return;
 
@@ -83,12 +77,10 @@ export function TrackedList({ entries, showTimerControls = false }) {
         };
     }, [activeIssue, startTime, showTimerControls]);
 
-    // Обработчик клика по кнопке Start/Stop
     const handleTimerClick = async (entry) => {
         console.log('handleTimerClick:', entry.issueUrl, 'action:', entry.issueUrl === activeIssue ? 'stop' : 'start');
         console.log('entry', entry);
         if (entry.issueUrl === activeIssue && startTime && !isNaN(new Date(startTime).getTime())) {
-            // Останавливаем таймер
             const result = await TimerService.stopTimer(entry.issueUrl, null, entry.title);
             setCurrentTimes((prev) => {
                 const newTimes = { ...prev };
@@ -97,41 +89,39 @@ export function TrackedList({ entries, showTimerControls = false }) {
             });
             chrome.runtime.sendMessage({ action: 'timerStopped', issueUrl: entry.issueUrl });
         } else {
-            // Запускаем таймер
             await TimerService.startTimer(entry.issueUrl);
-            // Не устанавливаем currentTimes здесь, полагаемся на useEffect
             chrome.runtime.sendMessage({ action: 'timerStarted', issueUrl: entry.issueUrl });
         }
     };
 
     return (
-        <div className="tracked-list">
-            {entries.map((entry, i) => (
-                <div key={entry.issueUrl || i} className="tracked-entry">
-                    <div className="tracked-title">{entry.title}</div>
-                    <div className="tracked-meta">
-                        {entry.displayTime} {entry.date && `on ${entry.date}`} |{' '}
-                        <a href={`https://github.com${entry.issueUrl}`} target="_blank">
-                            View
-                        </a>
-                        {showTimerControls && (
-                            <>
-                                {' | '}
-                                <span
-                                    onClick={() => handleTimerClick(entry)}
-                                    className='startTrackingBtn'
-                                >
+      <div className="py-1 text-sm">
+          {entries.map((entry, i) => (
+            <div key={entry.issueUrl || i} className="border-b border-gray-300 mb-2 pb-[7px] last:border-b-0 last:mb-0 last:pb-0">
+                <div className="leading-[145%]">{entry.title}</div>
+                <div className="text-[13px] text-gray-600 mt-[5px]">
+                    {entry.displayTime} {entry.date && `on ${entry.date}`} |{' '}
+                    <a href={`https://github.com${entry.issueUrl}`} target="_blank" className="text-blue-600 no-underline hover:underline">
+                        View
+                    </a>
+                    {showTimerControls && (
+                      <>
+                          {' | '}
+                          <span
+                            onClick={() => handleTimerClick(entry)}
+                            className="text-blue-700 cursor-pointer hover:underline"
+                          >
                                     {entry.issueUrl === activeIssue &&
                                     startTime &&
                                     !isNaN(new Date(startTime).getTime())
-                                        ? `${currentTimes[entry.issueUrl] || '00:00:00'} Stop`
-                                        : 'Start'}
+                                      ? `${currentTimes[entry.issueUrl] || '00:00:00'} Stop`
+                                      : 'Start'}
                                 </span>
-                            </>
-                        )}
-                    </div>
+                      </>
+                    )}
                 </div>
-            ))}
-        </div>
+            </div>
+          ))}
+      </div>
     );
 }

@@ -1,4 +1,3 @@
-// popup/Views/TrackedList/HistoryView.jsx
 import { useMemo, useState } from 'preact/hooks';
 import { TrackedList } from './TrackedList.jsx';
 import { TimeService } from '../../../utils/time.js';
@@ -13,8 +12,8 @@ export function HistoryView({tracked}) {
 
     const filteredTracked = useMemo(() => {
         return tracked.filter(entry =>
-            entry.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            (entry.issueUrl && entry.issueUrl.toLowerCase().includes(searchTerm.toLowerCase()))
+          entry.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (entry.issueUrl && entry.issueUrl.toLowerCase().includes(searchTerm.toLowerCase()))
         );
     }, [tracked, searchTerm]);
 
@@ -26,9 +25,9 @@ export function HistoryView({tracked}) {
     }, [filteredTracked]);
 
     return (
-        <>
-            <SearchBar onSearch={handleSearch} />
-            <TrackedList entries={entries} />
-        </>
+      <>
+          <SearchBar onSearch={handleSearch} />
+          <TrackedList entries={entries} />
+      </>
     );
 }

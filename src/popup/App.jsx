@@ -1,4 +1,3 @@
-// popup/App.jsx
 import { useState, useEffect } from 'preact/hooks';
 import { Tabs } from './Tabs.jsx';
 import { Button } from '../components/Button/Button.jsx';
@@ -9,9 +8,9 @@ import { HistoryView } from './Views/TrackedList/HistoryView.jsx';
 import { GitHubStorageService } from '../utils/github-storage.js';
 import { StorageService } from '../utils/storage.js';
 import { STORAGE_KEYS } from '../utils/constants.js';
-import './App.css';
 import {useStorageListener} from "../hooks/useStorageListener.js";
 import {IssueStorageService} from "../utils/issue-storage.js";
+import './App.css';
 
 export function App() {
     const NO_TOKEN_TEXT = 'no token';
@@ -86,49 +85,33 @@ export function App() {
     };
 
     return (
-      <div className='popup'>
-          <h2>⏱️ GitHub Time Tracker</h2>
-
-          <h1 className="text-3xl font-bold underline">
-              Hello world!
-          </h1>
-
-          <input
-            type="text"
-            placeholder="Enter text"
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+      <div className="p-4 box-border w-[400px] font-['Inter',sans-serif]">
+          <h4 className="text-center text-lg font-semibold">⏱️ GitHub Time Tracker</h4>
 
           {!isEditing ? (
-            <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: '15px',
-                marginTop: '15px'
-            }}>
-                    <span style={{fontSize: '0.9em', color: '#555'}}>
-                        {token ? '✅' : '❌'} Token: {maskedToken}
-                    </span>
-                <div>
+            <div className="flex justify-between items-center my-4">
+                <span className="text-sm text-gray-600">
+                    {token ? '✅' : '❌'} Token: {maskedToken}
+                </span>
+                <div className="flex gap-2">
                     {token && (
                       <span
-                        style={{marginRight: '10px', cursor: 'pointer'}}
+                        className="cursor-pointer hover:underline"
                         onClick={removeTokenHandler}
                       >
-                                Remove
-                            </span>
+                        Remove
+                      </span>
                     )}
                     <span
+                      className="text-blue-600 cursor-pointer hover:underline"
                       onClick={handleEditClick}
-                      style={{color: '#007bff', cursor: 'pointer', textDecoration: 'underline'}}
                     >
-                            Change
-                        </span>
+                        Change
+                    </span>
                 </div>
             </div>
           ) : (
-            <div style={{marginBottom: '15px', marginTop: '15px'}}>
+            <div className="my-4">
                 <Input
                   type="password"
                   value={token}
@@ -136,11 +119,11 @@ export function App() {
                   placeholder="GitHub Token"
                 />
                 {tokenStatus && tokenStatus.type === 'error' && (
-                  <span style={{color: 'red', marginBottom: '10px', display: 'inline-block'}}>
-                            {tokenStatus.message}
-                        </span>
+                  <span className="text-red-500 block mb-2">
+                    {tokenStatus.message}
+                  </span>
                 )}
-                <div style={{display: 'flex', gap: '10px'}}>
+                <div className="flex gap-2">
                     <Button onClick={handleSaveToken}>Save Token</Button>
                     <Button variant="secondary" onClick={handleCancelClick}>Cancel</Button>
                 </div>
@@ -149,8 +132,8 @@ export function App() {
 
           {
             tracked.length > 0 && (
-              <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                  <div style={{flex: 1}}>
+              <div className="flex justify-between items-center">
+                  <div className="flex-1">
                       <Tabs
                         tabs={[
                             {id: 'summary', label: 'Summary', content: <SummaryView tracked={tracked}/>},
@@ -158,7 +141,7 @@ export function App() {
                         ]}
                         tabsHeaderRight={<div
                           onClick={handleClearTrackedTimes}
-                          className='clearTrackedTimesBtn'
+                          className="text-sm cursor-pointer hover:underline"
                         >
                             Clear
                         </div>}
