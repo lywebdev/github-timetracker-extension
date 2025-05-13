@@ -15,7 +15,9 @@
   },
   "dependencies": {
     "@preact/preset-vite": "^2.5.0",
-    "preact": "^10.19.3"
+    "@tailwindcss/vite": "^4.1.6",
+    "preact": "^10.19.3",
+    "tailwindcss": "^4.1.6"
   },
   "devDependencies": {
     "nodemon": "^3.1.10",

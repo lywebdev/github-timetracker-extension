@@ -3,6 +3,7 @@ import preact from '@preact/preset-vite';
 import { resolve } from 'path';
 import {viteStaticCopy} from "vite-plugin-static-copy";
 import cssInjectedByJsPlugin from "vite-plugin-css-injected-by-js";
+import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
     plugins: [
@@ -16,6 +17,7 @@ export default defineConfig({
             ]
         }),
         cssInjectedByJsPlugin(),
+        tailwindcss()
     ],
     build: {
         rollupOptions: {
