@@ -1,3 +1,4 @@
+// background/index.js
 import { StorageService } from '../utils/storage.js';
 import { GitHubService } from '../utils/github.js';
 import { GitHubStorageService } from '../utils/github-storage.js';

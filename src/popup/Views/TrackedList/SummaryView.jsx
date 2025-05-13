@@ -1,3 +1,4 @@
+// popup/Views/TrackedList/SummaryView.jsx
 import { useMemo, useState, useEffect } from 'preact/hooks';
 import { TimeService } from '../../../utils/time.js';
 import { TrackedList } from './TrackedList.jsx';

@@ -1,3 +1,4 @@
+// background/content.js
 import { injectTimerButton, resetInjectedFlag } from './injectTimerButton.js';
 import { StorageService } from '../utils/storage.js';
 import { STORAGE_KEYS } from '../utils/constants.js';

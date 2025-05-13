@@ -1,3 +1,4 @@
+// popup/Tabs.jsx
 import { useState } from 'preact/hooks'
 import './Tabs.css'
 

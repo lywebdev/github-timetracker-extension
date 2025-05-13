@@ -1,3 +1,4 @@
+// content/injectTimerButton.js
 import { TimerService } from '../utils/timer.js';
 import { TimeService } from '../utils/time.js';
 import { addStorageListener } from '../utils/storage-listener.js';

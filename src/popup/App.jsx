@@ -1,3 +1,4 @@
+// popup/App.jsx
 import { useState, useEffect } from 'preact/hooks';
 import { Tabs } from './Tabs.jsx';
 import { Button } from '../components/Button/Button.jsx';
