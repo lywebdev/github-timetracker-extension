@@ -1,9 +1,10 @@
 import { TimeService } from './time.js';
 import { GitHubService } from './github.js';
 import { StorageService } from './storage.js';
-import { GitHubStorageService } from './github-storage.js';
+// import { GitHubStorageService } from './github-storage.js';
 import { STORAGE_KEYS, TIME_UPDATE_INTERVAL } from './constants.js';
 import { IssueStorageService } from "./issue-storage.js";
+import GithubStorageService from "../services/github/GithubStorageService.ts";
 
 export class TimerService {
     /**
@@ -105,7 +106,7 @@ export class TimerService {
         try {
             const [startTime, githubToken, trackedTimes, existingIssue] = await Promise.all([
                 StorageService.get(STORAGE_KEYS.START_TIME),
-                GitHubStorageService.getGitHubToken(),
+                GithubStorageService.getGitHubToken(),
                 StorageService.get(STORAGE_KEYS.TRACKED_TIMES),
                 IssueStorageService.getByUrl(issueUrl),
             ]);

@@ -18,7 +18,9 @@
     "tailwindcss": "^4.1.6"
   },
   "devDependencies": {
+    "@types/chrome": "^0.0.322",
     "nodemon": "^3.1.10",
+    "typescript": "^5.8.3",
     "vite": "^6.3.5",
     "vite-plugin-css-injected-by-js": "^3.5.2",
     "vite-plugin-static-copy": "^2.3.1"
