@@ -12,7 +12,7 @@
     "resolveJsonModule": true,
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
-    "types": ["jest-chrome", "chrome", "jest", "node"],
+    "types": ["sinon-chrome", "jest", "node"], /** todo all chrome types */
     "outDir": "./dist",
     "rootDir": "./",
     "baseUrl": "./",

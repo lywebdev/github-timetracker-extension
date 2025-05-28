@@ -1,9 +1,12 @@
 - https://developer.chrome.com/docs/extensions/how-to/test/unit-testing?hl=ru
 - https://medium.com/@victoronsoftware/add-unit-tests-to-chrome-extension-2024-fe0b9dc1b688
 - https://jestjs.io/docs/jest-object#jestspyonobject-methodname
+- https://habr.com/ru/companies/ua-hosting/articles/274317/
 
 # Examples repos: 
 - https://github.com/getvictor/create-chrome-extension/tree/main/7-unit-tests
+
+
 
 
 # Тестирование Chrome API с использованием Jest Mocks
