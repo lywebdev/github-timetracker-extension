@@ -1,6 +1,6 @@
 import { GITHUB_API_URL, COMMENT_TEMPLATE } from './constants.js';
 import {GitHubStorageService} from "./github-storage.js";
-import GithubCommentService from "../services/github/ApiGithubCommentService.ts";
+import GithubCommentService from "../services/github/CommentService.ts";
 
 export class GitHubService {
     static parseIssueUrl(url) {

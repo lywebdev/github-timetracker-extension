@@ -1,35 +1,34 @@
+// services/github/GithubStorageService.ts
 import { STORAGE_KEYS } from "../../utils/constants.js";
-import {storageService} from "../storage/StorageService";
-import {apiGithubUserService} from "./ApiGithubUserService";
+import { IStorageService, IGitHubStorageService, IUserService } from "./interfaces";
 
-class GitHubStorageService {
+export class GitHubStorageService implements IGitHubStorageService {
+  constructor(private readonly storageService: IStorageService) {}
+
   async getGitHubToken(): Promise<string | null> {
-    const token = await storageService.get(STORAGE_KEYS.GITHUB_TOKEN);
-    if (typeof token !== 'string' && token !== null) {
+    const token = await this.storageService.get<string>(STORAGE_KEYS.GITHUB_TOKEN);
+    if (typeof token !== "string") {
       console.warn(`Invalid GitHub token type: expected string, got ${typeof token}`);
       return null;
     }
-
     return token;
   }
 
   async setGitHubToken(token: string): Promise<void> {
-    return storageService.set(STORAGE_KEYS.GITHUB_TOKEN, token);
+    await this.storageService.set(STORAGE_KEYS.GITHUB_TOKEN, token);
   }
 
   async removeGitHubToken(): Promise<void> {
-    return storageService.remove(STORAGE_KEYS.GITHUB_TOKEN);
+    await this.storageService.remove(STORAGE_KEYS.GITHUB_TOKEN);
   }
 
-  async validateGitHubToken(token: string): Promise<boolean> {
+  async validateGitHubToken(token: string, userService: IUserService): Promise<boolean> {
     try {
-      const response = await apiGithubUserService.getUser();
-      return !!response;
+      const user = await userService.getUser();
+      return !!user;
     } catch (error) {
-      console.error('Token validation failed:', error);
+      console.error("Token validation failed:", error);
       return false;
     }
   }
 }
-
-export const githubStorageService = new GitHubStorageService();
