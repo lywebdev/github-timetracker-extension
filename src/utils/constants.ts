@@ -7,4 +7,4 @@ export const STORAGE_KEYS = {
     ISSUES: 'issues',
 };
 export const TIME_UPDATE_INTERVAL = 1000;
-export const COMMENT_TEMPLATE = (timeString) => `⏱️ Tracked time: **${timeString}**`;
+export const COMMENT_TEMPLATE = (timeString: string) => `⏱️ Tracked time: **${timeString}**`;

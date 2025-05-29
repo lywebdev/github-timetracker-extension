@@ -2,7 +2,7 @@ import { TimeService } from './time.js';
 import { GitHubService } from './github.js';
 import { StorageService } from './storage.js';
 // import { GitHubStorageService } from './github-storage.js';
-import { STORAGE_KEYS, TIME_UPDATE_INTERVAL } from './constants.js';
+import { STORAGE_KEYS, TIME_UPDATE_INTERVAL } from './constants.ts';
 import { IssueStorageService } from "./issue-storage.js";
 import GithubStorageService from "../services/github/GithubStorageService.ts";
 

@@ -7,7 +7,7 @@ import { SummaryView } from './Views/TrackedList/SummaryView.jsx';
 import { HistoryView } from './Views/TrackedList/HistoryView.jsx';
 import { GitHubStorageService } from '../utils/github-storage.js';
 import { StorageService } from '../utils/storage.js';
-import { STORAGE_KEYS } from '../utils/constants.js';
+import { STORAGE_KEYS } from '../utils/constants.ts';
 import {useStorageListener} from "../hooks/useStorageListener.js";
 import {IssueStorageService} from "../utils/issue-storage.js";
 import './App.css';

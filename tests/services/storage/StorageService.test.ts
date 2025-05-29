@@ -1,4 +1,4 @@
-import { StorageService } from '../src/services/storage/StorageService';
+import { StorageService } from '../../../src/services/storage/StorageService';
 import * as chrome from 'sinon-chrome';
 
 describe('StorageService with sinon-chrome', () => {

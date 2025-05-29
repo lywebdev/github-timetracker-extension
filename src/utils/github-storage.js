@@ -1,4 +1,4 @@
-import { STORAGE_KEYS } from './constants.js';
+import { STORAGE_KEYS } from './constants.ts';
 import { StorageService } from './storage.js';
 
 export class GitHubStorageService {

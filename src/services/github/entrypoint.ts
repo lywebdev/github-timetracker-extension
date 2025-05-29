@@ -4,12 +4,14 @@ import { CommentService } from "./CommentService";
 import { UserService } from "./UserService";
 import { GitHubStorageService } from "./GithubStorageService";
 import { StorageService } from "../storage/StorageService";
+import {HttpClientFactory} from "../../factories/github/HttpClientFactory";
 
 const storageService = new StorageService();
-const githubStorageService = new GitHubStorageService(storageService);
+const httpClientFactory = new HttpClientFactory();
+
+const githubStorageService = new GitHubStorageService(storageService, httpClientFactory);
 
 const githubClient = await createGithubClient(githubStorageService);
-
 
 
 export const userService = new UserService(githubClient);

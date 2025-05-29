@@ -3,7 +3,7 @@ import { TimeService } from '../../../utils/time.js';
 import { TrackedList } from './TrackedList.jsx';
 import { TimerService } from '../../../utils/timer.js';
 import { StorageService } from '../../../utils/storage.js';
-import { STORAGE_KEYS } from '../../../utils/constants.js';
+import { STORAGE_KEYS } from '../../../utils/constants.ts';
 import { SearchBar } from '../../../components/SearchBar/SearchBar.jsx';
 
 export function CalendarView({ tracked }) {

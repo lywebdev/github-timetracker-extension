@@ -1,5 +1,5 @@
 import { StorageService } from './storage';
-import {STORAGE_KEYS} from "./constants.js";
+import {STORAGE_KEYS} from "./constants.ts";
 
 const STORAGE_KEY = STORAGE_KEYS.ISSUES;
 

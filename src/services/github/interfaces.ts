@@ -6,6 +6,10 @@ export interface IHttpClient {
   get<T>(endpoint: string): Promise<T>;
 }
 
+export interface IHttpClientFactory {
+  create(token: string): IHttpClient;
+}
+
 export interface ICommentService {
   sendComment(params: {
     owner: string;
@@ -19,6 +23,7 @@ export interface IUserService {
   getUser(): Promise<User>;
 }
 
+/** todo send to storage */
 export type StorageValue = string | number | boolean | object | null;
 
 export interface IStorageService {

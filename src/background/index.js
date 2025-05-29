@@ -2,7 +2,7 @@
 import { StorageService } from '../utils/storage.js';
 import { GitHubService } from '../utils/github.js';
 import { GitHubStorageService } from '../utils/github-storage.js';
-import { STORAGE_KEYS } from '../utils/constants.js';
+import { STORAGE_KEYS } from '../utils/constants.ts';
 import {IssueStorageService} from "../utils/issue-storage.js";
 
 async function handleTimerStop(reason) {

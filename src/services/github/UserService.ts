@@ -9,7 +9,7 @@ export class UserService implements IUserService {
   async getUser(): Promise<User> {
     const user = await this.client.get<User>(endpoints.user.profile);
     if (!user) {
-      throw new Error("Не удалось получить данные пользователя");
+      throw new Error("Couldn't get user data");
     }
     return user;
   }

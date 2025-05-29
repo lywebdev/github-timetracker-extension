@@ -7,5 +7,6 @@ export async function createGithubClient(storageService: IGitHubStorageService):
   if (!token) {
     throw new Error("GitHub token is missing");
   }
+
   return new GithubClient(token);
 }
