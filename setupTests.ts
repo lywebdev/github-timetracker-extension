@@ -1,4 +1,4 @@
-import chrome = require('sinon-chrome');
+import * as chrome from 'sinon-chrome';
 
-// @ts-ignore
-global.chrome = chrome;
+// Assign to global.chrome for testing
+global.chrome = chrome as any;

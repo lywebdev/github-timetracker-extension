@@ -1,19 +1,16 @@
 import { StorageService } from '../src/services/storage/StorageService';
-import chrome = require('sinon-chrome');
+import * as chrome from 'sinon-chrome';
 
 describe('StorageService with sinon-chrome', () => {
   let storageService: StorageService;
 
   beforeEach(() => {
     storageService = new StorageService();
-    chrome.storage.local.get.reset();
-    chrome.storage.local.set.reset();
-    chrome.storage.local.remove.reset();
   });
 
   afterEach(() => {
     chrome.flush();
-  });
+  })
 
   describe('get', () => {
     it('should return value for existing key', async () => {
